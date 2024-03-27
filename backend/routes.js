@@ -12,6 +12,9 @@ const adminMiddleware = require('./middlewares/adminMiddleware');
 router.post('/users/register', userController.register);
 router.post('/users/login',  userController.login);
 router.get('/users/logout',authenticateUser, userController.logout);
+// Routes
+router.post('/stories', authenticateUser, storyController.createStory);
+router.delete('/stories/:id', authenticateUser, storyController.deleteStory);
 
 // Story routes
 router.get('/stories', authenticateUser, storyController.getAllStories);
@@ -31,6 +34,6 @@ router.put('/profile', authenticateUser, userController.updateProfile);
 
 // Delete routes
 router.delete('/comments/:commentId', authenticateUser, commentController.deleteComment);
-router.delete('/stories/:id', authenticateUser, storyController.deleteStory);
+
 
 module.exports = router;

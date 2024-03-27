@@ -14,11 +14,21 @@ const volumeSchema = new mongoose.Schema({
 
 const storySchema = new mongoose.Schema({
   title: { type: String, required: true },
-  volumes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Volume' }],
-  author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  approved: { type: Boolean, default: false },
-  // Add other story fields as needed
+  content: { type: String, required: true },
+  category: { type: String },
+  creationDate: { type: Date, default: Date.now },
+  status: { type: String, default: "draft" },
+  thumbnail: { type: String },
+  volumes: [{
+    chapters: [{
+      title: { type: String },
+      content: { type: String }
+    }]
+  }],
+  owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // ID của người sở hữu
+  author: { type: String, required: true } // Tên tác giả
 });
+
 
 const Chapter = mongoose.model('Chapter', chapterSchema);
 const Volume = mongoose.model('Volume', volumeSchema);
