@@ -10,12 +10,6 @@ const routes = require('./routes');
 const session = require('express-session');
 const app = express();
 
-app.use(session({
-  secret: 'your_secret_key', // Thay đổi 'your_secret_key' thành một chuỗi bí mật
-  resave: false,
-  saveUninitialized: true,
-}));
-
 // Middleware
 app.use(bodyParser.json());
 app.use(cors());
