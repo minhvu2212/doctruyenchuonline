@@ -1,7 +1,4 @@
 const Comment = require('../models/Comment');
-const authenticateUser = require('../middlewares/authMiddleware');
-const adminMiddleware = require('../middlewares/adminMiddleware');
-const { clearToken, isTokenBlacklisted, generateToken, verifyToken } = require('../utils/tokenUtils');
 exports.createComment = async (req, res) => {
   try {
     const { content } = req.body;

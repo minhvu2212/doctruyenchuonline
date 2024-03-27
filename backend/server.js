@@ -2,23 +2,19 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const authenticateUser = require('./middlewares/authMiddleware');
-const adminMiddleware = require('./middlewares/adminMiddleware');
+
 const config = require('./config');
 const routes = require('./routes');
 
-const session = require('express-session');
 const app = express();
 
 // Middleware
 app.use(bodyParser.json());
 app.use(cors());
 
+
 // Connect to MongoDB
-mongoose.connect(config.mongodbURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
+mongoose.connect(config.mongodbURI).then(() => {
   console.log('Connected to MongoDB');
 }).catch(err => {
   console.error('Error connecting to MongoDB:', err.message);

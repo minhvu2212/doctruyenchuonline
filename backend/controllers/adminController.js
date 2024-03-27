@@ -1,9 +1,6 @@
 const User = require('../models/User');
 const Story = require('../models/Story');
 
-const authenticateUser = require('../middlewares/authMiddleware');
-const adminMiddleware = require('../middlewares/adminMiddleware');
-const { clearToken, isTokenBlacklisted, generateToken, verifyToken } = require('../utils/tokenUtils');
 exports.createAdmin = async (req, res) => {
   try {
     // Kiểm tra xem req.user đã được xác định chưa

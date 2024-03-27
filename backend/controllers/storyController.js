@@ -1,73 +1,175 @@
-const { Category, Chapter, Story } = require('../models/Story');
-const User = require('../models/User'); 
-exports.getAllStories = async (req, res) => {
-  try {
-    const stories = await Story.find({ approved: true }).populate('author', 'username');
-    res.status(200).json(stories);
-  } catch (error) {
-    console.error('Error fetching stories:', error.message);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
+const Story = require("../models/Story");
 
-exports.getStoryById = async (req, res) => {
-  try {
-    const storyId = req.params.id;
-    const story = await Story.findById(storyId).populate('author', 'username');
-    if (!story) {
-      return res.status(404).json({ message: 'Story not found' });
-    }
-    res.status(200).json(story);
-  } catch (error) {
-    console.error('Error fetching story:', error.message);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-exports.createStory = async (req, res) => {
-  try {
-    const { title, content, category, creationDate, status, thumbnail, author } = req.body;
-    let username = null;
-    if (req.user && req.user.username) {
-      username = req.user.username;
-    } else {
-      // Xử lý trường hợp khi không có thông tin người dùng từ token
-      return res.status(401).json({ message: 'Unauthorized: User not found' });
-    }
-
-    const newStory = new Story({
-      title,
-      content,
-      category,
-      creationDate,
-      status,
-      thumbnail,
-      owner: username, // Gán owner là tên người dùng hiện tại
-      author, // Sử dụng giá trị của author từ request body
+const createStory = async(req, res) => {
+    const newStory = new storyModel({
+        title: req.body.title,
+        description: req.body.description,
+        cover: req.body.cover,
+        categories: req.body.categories,
+        tags: req.body.tags,
+        rating: req.body.rating,
+        language: req.body.language,
+        targetAudience: req.body.targetAudience,
+        author: req.verifiedUser._id,
     });
-
-    await newStory.save();
-    res.status(201).json({ message: 'Story created successfully' });
-  } catch (error) {
-    console.error('Error creating story:', error.message);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-exports.deleteStory = async (req, res) => {
-  try {
-    const storyId = req.params.id;
-    const userId = req.user.userId; // User ID from JWT token
-
-    const story = await Story.findOne({ _id: storyId, owner: userId });
-    if (!story) {
-      return res.status(404).json({ message: 'Story not found or you do not have permission to delete this story' });
+    try {
+        const savedStory = await newStory.save();
+        return res.status(201).json(savedStory);
+    } catch (err) {
+        return res.status(500).json(err);
     }
-
-    await Story.findByIdAndDelete(storyId);
-    res.status(200).json({ message: 'Story deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting story:', error.message);
-    res.status(500).json({ message: 'Server error' });
-  }
 };
+
+const getStories = async(req, res) => {
+    try {
+        const stories = await storyModel.find();
+        return res.status(200).json(stories);
+    } catch (err) {
+        return res.status(500).json(err);
+    }
+};
+
+const getStory = async(req, res) => {
+    try {
+        const story = await storyModel.aggregate([
+            { $match: { _id: req.story._id } },
+            {
+                $lookup: {
+                    from: "Chapter",
+                    let: {
+                        storyId: "$_id",
+                    },
+                    pipeline: [{
+                            $match: {
+                                $expr: {
+                                    $eq: ["$$storyId", "$story"],
+                                },
+                            },
+                        },
+                        {
+                            $lookup: {
+                                from: "Vote",
+                                localField: "_id",
+                                foreignField: "chapter",
+                                as: "votes",
+                            },
+                        },
+                        {
+                            $lookup: {
+                                from: "Read",
+                                localField: "_id",
+                                foreignField: "chapter",
+                                as: "reads",
+                            },
+                        },
+                        {
+                            $lookup: {
+                                from: "Comment",
+                                localField: "_id",
+                                foreignField: "chapter",
+                                as: "comments",
+                            },
+                        },
+                        {
+                            $addFields: {
+                                reads: { $size: "$reads" },
+                                votes: { $size: "$votes" },
+                                comments: { $size: "$comments" },
+                            },
+                        },
+                    ],
+                    as: "chapters",
+                },
+            },
+            {
+                $lookup: {
+                    from: "User",
+                    localField: "author",
+                    foreignField: "_id",
+                    as: "author",
+                },
+            },
+            {
+                $unwind: "$author",
+            },
+            {
+                $project: {
+                    author: {
+                        password: 0,
+                        __v: 0,
+                        _id: 0,
+                    },
+                },
+            },
+            {
+                $lookup: {
+                    from: "Tag",
+                    localField: "tags",
+                    foreignField: "_id",
+                    as: "tags",
+                },
+            },
+            {
+                $lookup: {
+                    from: "Category",
+                    localField: "categories",
+                    foreignField: "_id",
+                    as: "categories",
+                },
+            },
+            {
+                $addFields: {
+                    reads: {
+                        $sum: "$chapters.reads",
+                    },
+                    votes: {
+                        $sum: "$chapters.votes",
+                    },
+                    comments: {
+                        $sum: "$chapters.comments",
+                    },
+                    readTime: {
+                        $sum: "$chapters.readTime",
+                    },
+                    chapters: {
+                        $size: "$chapters",
+                    },
+                },
+            },
+        ]);
+        return res.status(200).json(story[0]);
+    } catch (err) {
+        return res.status(500).json(err);
+    }
+};
+
+const deleteStory = async(req, res) => {
+    const story = req.story;
+    try {
+        const deletedStory = await storyModel.findByIdAndDelete(story._id);
+        return res.status(200).json(deletedStory);
+    } catch (err) {
+        return res.status(500).json(err);
+    }
+};
+
+const updateStory = async(req, res) => {
+    const story = req.story;
+    try {
+        const updatedStory = await storyModel.findByIdAndUpdate(
+            story._id,
+            req.body, {
+                new: true,
+            }
+        );
+        return res.status(200).json(updatedStory);
+    } catch (err) {
+        return res.status(500).json(err);
+    }
+};
+
+module.exports.getStory = getStory;
+module.exports.getStories = getStories;
+module.exports.createStory = createStory;
+module.exports.deleteStory = deleteStory;
+module.exports.updateStory = updateStory;

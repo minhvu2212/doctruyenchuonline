@@ -1,6 +1,6 @@
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const config = require('../config');
-const { generateToken, clearToken } = require('../utils/tokenUtils');
 
 // Đăng ký người dùng mới
 exports.register = async (req, res) => {
@@ -40,7 +40,7 @@ exports.login = async (req, res) => {
     }
 
     // Tạo token với thông tin người dùng và isAdmin
-    const token = generateToken({ userId: user._id, isAdmin: user.isAdmin }, config.jwtSecret);
+    const token = jwt.sign({ userId: user._id, username: user.username, isAdmin: user.isAdmin }, config.jwtSecret, { expiresIn: '24h' });
 
     res.status(200).json({ token });
   } catch (error) {
@@ -52,7 +52,7 @@ exports.login = async (req, res) => {
 // Cập nhật hồ sơ người dùng
 exports.updateProfile = async (req, res) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.verifiedUser.userId;
     const updates = req.body;
 
     await User.findByIdAndUpdate(userId, updates);
@@ -64,6 +64,7 @@ exports.updateProfile = async (req, res) => {
 };
 
 // Đăng xuất và xử lý token
+// Đăng xuất và xử lý token
 exports.logout = async (req, res) => {
   try {
     // Token được gửi từ client trong header Authorization
@@ -73,7 +74,7 @@ exports.logout = async (req, res) => {
     }
 
     // Thêm token vào blacklist hoặc xử lý khác để đánh dấu token là không hợp lệ
-    clearToken(token); // Hàm clearToken cần được định nghĩa để xử lý token
+    await addToBlacklist(token);
 
     res.status(200).json({ message: 'Logout successful' });
   } catch (error) {
@@ -81,3 +82,12 @@ exports.logout = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+// Hàm để thêm token vào danh sách đen
+const addToBlacklist = async (token) => {
+  // Tạo một bản ghi trong cơ sở dữ liệu chứa token đã hết hạn
+  // Ví dụ: sử dụng mô hình TokenSchema để lưu trữ token
+  const tokenDocument = new Token({ token });
+  await tokenDocument.save();
+};
+
