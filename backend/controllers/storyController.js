@@ -1,4 +1,4 @@
-const Story = require('../models/Story');
+const { Story } = require('../models/Story');
 
 exports.getAllStories = async (req, res) => {
   try {
@@ -26,12 +26,14 @@ exports.getStoryById = async (req, res) => {
 
 exports.createStory = async (req, res) => {
   try {
-    const { title, content, category, creationDate, status, thumbnail, volumes } = req.body;
-    const userId = req.user.userId; // User ID from JWT token
-    const author = req.user.username; // Author name from JWT token
-
-    // Kiểm tra volumes có được cung cấp không, nếu không thì mặc định là một tập truyện
-    const newVolumes = volumes || [{ chapters: [] }];
+    const { title, content, category, creationDate, status, thumbnail, author } = req.body;
+    let username = null;
+    if (req.user && req.user.username) {
+      username = req.user.username;
+    } else {
+      // Xử lý trường hợp khi không có thông tin người dùng từ token
+      return res.status(401).json({ message: 'Unauthorized: User not found' });
+    }
 
     const newStory = new Story({
       title,
@@ -40,9 +42,8 @@ exports.createStory = async (req, res) => {
       creationDate,
       status,
       thumbnail,
-      owner: userId,
-      author,
-      volumes: newVolumes
+      owner: username, // Gán owner là tên người dùng hiện tại
+      author, // Sử dụng giá trị của author từ request body
     });
 
     await newStory.save();
@@ -52,7 +53,6 @@ exports.createStory = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
-
 
 exports.deleteStory = async (req, res) => {
   try {

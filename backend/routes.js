@@ -7,14 +7,20 @@ const adminController = require('./controllers/adminController');
 const commentController = require('./controllers/commentController');
 const authenticateUser = require('./middlewares/authMiddleware');
 const adminMiddleware = require('./middlewares/adminMiddleware');
+const checkUserInfo = require('./middlewares/checkUserInfo');
 
 // User routes
 router.post('/users/register', userController.register);
 router.post('/users/login',  userController.login);
 router.get('/users/logout',authenticateUser, userController.logout);
 // Routes
-router.post('/stories', authenticateUser, storyController.createStory);
-router.delete('/stories/:id', authenticateUser, storyController.deleteStory);
+router.post('/check', checkUserInfo, (req, res) => {
+    // Lấy thông tin người dùng từ đối tượng req.user
+    const userInfo = req.user;
+
+    // Nếu đến đây, middleware checkUserInfo đã xác thực thành công
+    res.status(200).json({ message: 'User info checked successfully', userInfo });
+});
 
 // Story routes
 router.get('/stories', authenticateUser, storyController.getAllStories);
@@ -34,6 +40,6 @@ router.put('/profile', authenticateUser, userController.updateProfile);
 
 // Delete routes
 router.delete('/comments/:commentId', authenticateUser, commentController.deleteComment);
-
+router.delete('/stories/:id', authenticateUser, storyController.deleteStory);
 
 module.exports = router;

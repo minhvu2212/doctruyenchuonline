@@ -16,10 +16,12 @@ const isTokenBlacklisted = async (token) => {
 
 // Tạo JWT token
 const generateToken = (user) => {
-  // Đảm bảo rằng user có trường isAdmin
+  // Đảm bảo rằng user có đầy đủ thông tin cần thiết
   const payload = {
     userId: user._id,
-    isAdmin: user.isAdmin
+    isAdmin: user.isAdmin,
+    username: user.username
+    // Thêm các trường thông tin khác của người dùng tại đây
   };
   // Tạo token
   return jwt.sign(payload, config.jwtSecret, { expiresIn: '24h' });

@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const config = require('../config');
 
-const authenticateUser = (req, res, next) => {
+const checkUserInfo = (req, res, next) => {
     // Lấy token từ header Authorization
     const authHeader = req.headers.authorization;
     
@@ -21,7 +21,7 @@ const authenticateUser = (req, res, next) => {
         const decoded = jwt.verify(token, config.jwtSecret);
         // Lưu thông tin người dùng vào req.user để sử dụng trong các middleware tiếp theo
         req.user = decoded;
-        const username = decoded.username;
+        const { userId, username } = decoded;
         console.log('User authenticated:', decoded);
         // Gọi next() để tiếp tục xử lý yêu cầu
         next();
@@ -32,4 +32,4 @@ const authenticateUser = (req, res, next) => {
     }
 };
 
-module.exports = authenticateUser;
+module.exports = checkUserInfo;
