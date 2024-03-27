@@ -1,5 +1,5 @@
-const { Story } = require('../models/Story');
-
+const { Category, Chapter, Story } = require('../models/Story');
+const User = require('../models/User'); 
 exports.getAllStories = async (req, res) => {
   try {
     const stories = await Story.find({ approved: true }).populate('author', 'username');

@@ -1,36 +1,31 @@
-const mongoose = require('mongoose');
-const User = require('./User'); // Đường dẫn đến file mô hình User
+const mongoose = require("mongoose");
+const slug = require("slug");
+const StorySchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    slug: { type: String, unique: true, index: true },
+    description: { type: String, required: true },
+    cover: { type: String },
+    categories: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }],
+    tags: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tag" }],
+    targetAudience: { type: String },
+    language: { type: String, default: "ar" },
+    rating: { type: Number },
+    author: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+    },
+    isCompleted: { type: Boolean, default: false },
+}, { timestamps: true });
 
-// Định nghĩa schema cho danh mục (category)
-const categorySchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  description: { type: String }
+StorySchema.pre("validate", function(next) {
+    if (!this.slug) {
+        this.slugify(this.title);
+    }
+    next();
 });
-
-const Category = mongoose.model('Category', categorySchema, 'Category');
-
-// Định nghĩa schema cho chapter
-const chapterSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  content: { type: String, required: true },
-  // Thêm các trường thông tin khác của chapter nếu cần
-});
-
-const Chapter = mongoose.model('Chapter', chapterSchema, 'Chapter');
-
-// Định nghĩa schema cho câu chuyện (story)
-const storySchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  content: { type: String, required: true },
-  category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' }, // Tham chiếu đến schema của category
-  creationDate: { type: Date, default: Date.now },
-  status: { type: String, default: "draft" },
-  thumbnail: { type: String },
-  chapters: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Chapter' }], // Tham chiếu đến schema của chapter
-  owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Tham chiếu đến mô hình User
-  author: { type: String, required: true } // Giữ nguyên kiểu dữ liệu String cho trường author
-});
-
-const Story = mongoose.model('Story', storySchema, 'Story');
-
-module.exports = { Category, Chapter, Story };
+StorySchema.methods.slugify = function(text) {
+    this.slug =
+        slug(text) + "-" + ((Math.random() * Math.pow(36, 6)) | 0).toString(36);
+};
+module.exports = mongoose.model("Story", StorySchema, "Story");
