@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const config = require('../config');
-
+const Token = require('../models/Token');
 // Đăng ký người dùng mới
 exports.register = async (req, res) => {
   try {
@@ -40,7 +40,7 @@ exports.login = async (req, res) => {
     }
 
     // Tạo token với thông tin người dùng và isAdmin
-    const token = jwt.sign({ userId: user._id, username: user.username, isAdmin: user.isAdmin }, config.jwtSecret, { expiresIn: '24h' });
+    const token = jwt.sign({ _id: user._id, isAdmin: user.isAdmin }, config.jwtSecret, { expiresIn: '24h' });
 
     res.status(200).json({ token });
   } catch (error) {

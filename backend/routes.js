@@ -10,22 +10,28 @@ const commentController = require('./controllers/commentController');
 const isAdmin = require("./middlewares/isAdmin");
 const verifyToken = require("./middlewares/verifyToken");
 const isStoryOwner = require("./middlewares/isStoryOwner");
+const categoryController = require('./controllers/categoryController');
+const tagController = require('./controllers/tagController');
 // User routes
 router.post('/users/register', userController.register);
 router.post('/users/login',  userController.login);
-router.get('/users/logout',verifyToken, userController.logout);
-// Routes
-
+router.get('/users/logout', userController.logout);
+// CategoryRoutes
+router.post('/categories', verifyToken, categoryController.createCategory);
+router.get('/categories', categoryController.getCategories);
+router.get('/categories/:categoryId', categoryController.getCategory);
+router.delete('/categories/:categoryId', verifyToken, categoryController.deleteCategory);
+router.put('/categories/:categoryId', verifyToken, categoryController.updateCategory);
+// Tag
+router.post('/tags', verifyToken, tagController.createTag);
+router.get('/tags', verifyToken, tagController.getTags);
+router.get('/tags/:id', verifyToken, tagController.getTag);
+router.delete('/tags/:id', verifyToken, tagController.deleteTag);
+router.put('/tags/:id', verifyToken, tagController.updateTag);
 // Story routes
 router.post('/createStory',verifyToken, createStory);
-
-// Lấy danh sách các câu chuyện
 router.get('/getStories',verifyToken, getStories);
-
-// Lấy thông tin chi tiết của một câu chuyện
 router.get('/getStory/:id',verifyToken, getStory);
-
-// Xóa một câu chuyện
 router.delete('/deleteStory/:id',verifyToken,isStoryOwner, deleteStory);
 router.delete('/deleteStoryadmin/:id',verifyToken,isAdmin, deleteStory);
 // Cập nhật thông tin của một câu chuyện

@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   isAdmin: {
     type: Boolean,
-    default: false, // Giá trị mặc định là false cho người dùng thông thường
+    default: false, 
   },
 });
 

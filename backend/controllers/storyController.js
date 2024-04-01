@@ -1,7 +1,7 @@
 const Story = require("../models/Story");
 
 const createStory = async(req, res) => {
-    const newStory = new storyModel({
+    const newStory = new Story({
         title: req.body.title,
         description: req.body.description,
         cover: req.body.cover,
@@ -22,7 +22,7 @@ const createStory = async(req, res) => {
 
 const getStories = async(req, res) => {
     try {
-        const stories = await storyModel.find();
+        const stories = await Story.find();
         return res.status(200).json(stories);
     } catch (err) {
         return res.status(500).json(err);
@@ -31,7 +31,7 @@ const getStories = async(req, res) => {
 
 const getStory = async(req, res) => {
     try {
-        const story = await storyModel.aggregate([
+        const story = await Story.aggregate([
             { $match: { _id: req.story._id } },
             {
                 $lookup: {
@@ -146,7 +146,7 @@ const getStory = async(req, res) => {
 const deleteStory = async(req, res) => {
     const story = req.story;
     try {
-        const deletedStory = await storyModel.findByIdAndDelete(story._id);
+        const deletedStory = await Story.findByIdAndDelete(story._id);
         return res.status(200).json(deletedStory);
     } catch (err) {
         return res.status(500).json(err);
@@ -156,7 +156,7 @@ const deleteStory = async(req, res) => {
 const updateStory = async(req, res) => {
     const story = req.story;
     try {
-        const updatedStory = await storyModel.findByIdAndUpdate(
+        const updatedStory = await Story.findByIdAndUpdate(
             story._id,
             req.body, {
                 new: true,
