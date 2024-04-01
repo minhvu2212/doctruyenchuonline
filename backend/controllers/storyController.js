@@ -11,6 +11,7 @@ const createStory = async(req, res) => {
         language: req.body.language,
         targetAudience: req.body.targetAudience,
         author: req.verifiedUser._id,
+        approved: false, // Thêm trường approved mặc định là false
     });
     try {
         const savedStory = await newStory.save();
@@ -19,6 +20,7 @@ const createStory = async(req, res) => {
         return res.status(500).json(err);
     }
 };
+
 
 const getStories = async(req, res) => {
     try {

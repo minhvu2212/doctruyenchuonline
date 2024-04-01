@@ -12,10 +12,14 @@ const verifyToken = require("./middlewares/verifyToken");
 const isStoryOwner = require("./middlewares/isStoryOwner");
 const categoryController = require('./controllers/categoryController');
 const tagController = require('./controllers/tagController');
+const chapterController = require('./controllers/chapterController');
+const readController = require('./controllers/readController');
+const bookmarkController = require('./controllers/bookmarkController');
 // User routes
 router.post('/users/register', userController.register);
 router.post('/users/login',  userController.login);
 router.get('/users/logout', userController.logout);
+router.put('/profile', verifyToken, userController.updateProfile);
 // CategoryRoutes
 router.post('/categories', verifyToken, categoryController.createCategory);
 router.get('/categories', categoryController.getCategories);
@@ -34,8 +38,23 @@ router.get('/getStories',verifyToken, getStories);
 router.get('/getStory/:id',verifyToken, getStory);
 router.delete('/deleteStory/:id',verifyToken,isStoryOwner, deleteStory);
 router.delete('/deleteStoryadmin/:id',verifyToken,isAdmin, deleteStory);
-// Cập nhật thông tin của một câu chuyện
 router.put('/updateStory/:id',verifyToken,isStoryOwner, updateStory);
+
+//Chapter
+router.post('/chapters', verifyToken, chapterController.createChapter);
+router.get('/chapters/story/:storyId', verifyToken, chapterController.getStoryChapters);
+router.get('/chapters/:chapterId', verifyToken, chapterController.getChapter);
+router.delete('/chapters/:chapterId', verifyToken, chapterController.deleteChapter);
+router.put('/chapters/:chapterId', verifyToken, chapterController.updateChapter);
+
+// Read
+router.post('/chapters/:chapterId/read', verifyToken, readController.readChapter);
+//Bookmark
+// Đánh dấu một truyện đã được đánh dấu
+router.post('/stories/:storyId/bookmark', verifyToken, bookmarkController.bookmarkStory);
+
+// Hủy đánh dấu một truyện
+router.delete('/stories/:storyId/bookmark', verifyToken, bookmarkController.unbookmarkStory);
 
 // Admin routes
 router.post('/admin/approveStory', verifyToken, isAdmin, adminController.approveStory);
@@ -44,12 +63,9 @@ router.post('/admin/createAdmin', verifyToken, isAdmin, adminController.createAd
 // Comment routes
 router.post('/stories/:storyId/comments', verifyToken, commentController.createComment);
 router.get('/stories/:storyId/comments', verifyToken, commentController.getCommentsForStory);
-
-// Profile routes
-router.put('/profile', verifyToken, userController.updateProfile);
-
-// Delete routes
 router.delete('/comments/:commentId', verifyToken, commentController.deleteComment);
+
+
 
 
 module.exports = router;
