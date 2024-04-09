@@ -16,6 +16,7 @@ exports.register = async (req, res) => {
     // Tạo người dùng mới
     const newUser = new User({ username, password });
     await newUser.save();
+    console.log('User registered successfully:', newUser);
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     console.error('Error registering user:', error.message);
@@ -41,6 +42,7 @@ exports.login = async (req, res) => {
 
     // Tạo token với thông tin người dùng và isAdmin
     const token = jwt.sign({ _id: user._id, isAdmin: user.isAdmin }, config.jwtSecret, { expiresIn: '24h' });
+    console.log('User logged in successfully:', user);
 
     res.status(200).json({ token });
   } catch (error) {
