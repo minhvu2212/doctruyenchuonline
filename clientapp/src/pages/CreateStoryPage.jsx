@@ -1,79 +1,160 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const CreateStoryPage = () => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [cover, setCover] = useState('');
-  const [categories, setCategories] = useState('');
-  const [tags, setTags] = useState('');
-  const [rating, setRating] = useState('');
-  const [language, setLanguage] = useState('');
-  const [targetAudience, setTargetAudience] = useState('');
-  const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    cover: "",
+    categories: [],
+    tags: [],
+  });
 
-  const handleCreateStory = async () => {
-    try {
-      const response = await axios.post('http://localhost:5000/api/createStory', {
-        title,
-        description,
-        cover,
-        categories: categories.split(','), // Chuyển chuỗi thành mảng
-        tags: tags.split(','), // Chuyển chuỗi thành mảng
-        rating,
-        language,
-        targetAudience,
-      });
-      setSuccessMessage('Story created successfully');
-    } catch (error) {
-      if (error.response && error.response.data) {
-        setError(error.response.data.message);
-      } else {
-        setError('Server error');
+  const [categories, setCategories] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [token, setToken] = useState(""); // State để lưu trữ token
+
+  useEffect(() => {
+    const fetchCategoriesAndTags = async () => {
+      try {
+        const categoriesResponse = await axios.get("http://localhost:5000/api/categories");
+        setCategories(categoriesResponse.data);
+        const tagsResponse = await axios.get("http://localhost:5000/api/tags");
+        setTags(tagsResponse.data);
+        setLoading(false);
+      } catch (error) {
+        setError("Error loading categories and tags");
+        setLoading(false);
       }
+    };
+
+    fetchCategoriesAndTags();
+  }, []);
+
+  useEffect(() => {
+    const fetchToken = () => {
+      const storedToken = localStorage.getItem("token");
+      if (storedToken) {
+        setToken(storedToken);
+      }
+    };
+
+    fetchToken();
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleCategoryChange = (e) => {
+    const selectedCategories = Array.from(e.target.selectedOptions, option => option.value);
+    setFormData({ ...formData, categories: selectedCategories });
+  };
+
+  const handleTagChange = (e) => {
+    const selectedTags = Array.from(e.target.selectedOptions, option => option.value);
+    setFormData({ ...formData, tags: selectedTags });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/createStory",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}` // Gửi token trong tiêu đề Authorization
+          }
+        }
+      );
+      console.log("New story created:", response.data);
+      // Redirect to the newly created story page or do something else
+    } catch (error) {
+      console.error("Error creating story:", error);
+      // Handle error, display error message, etc.
     }
   };
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
   return (
-    <div>
-      <h2>Create Story</h2>
-      {error && <div style={{ color: 'red' }}>{error}</div>}
-      {successMessage && <div style={{ color: 'green' }}>{successMessage}</div>}
-      <form onSubmit={handleCreateStory}>
+    <div className="container mx-auto p-4">
+      <h2 className="text-2xl font-bold mb-4">Create New Story</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label>Title:</label>
-          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <label className="block">Title:</label>
+          <input
+            type="text"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            className="form-input w-full"
+          />
         </div>
         <div>
-          <label>Description:</label>
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
+          <label className="block">Description:</label>
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            className="form-textarea w-full"
+          />
         </div>
         <div>
-          <label>Cover:</label>
-          <input type="text" value={cover} onChange={(e) => setCover(e.target.value)} />
+          <label className="block">Cover:</label>
+          <input
+            type="text"
+            name="cover"
+            value={formData.cover}
+            onChange={handleChange}
+            className="form-input w-full"
+          />
         </div>
         <div>
-          <label>Categories:</label>
-          <input type="text" value={categories} onChange={(e) => setCategories(e.target.value)} />
+          <label className="block">Categories:</label>
+          <select
+            name="categories"
+            value={formData.categories}
+            onChange={handleCategoryChange}
+            multiple // Allow multiple selections
+            className="form-select w-full"
+          >
+            {categories.map(category => (
+              <option key={category._id} value={category._id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
-          <label>Tags:</label>
-          <input type="text" value={tags} onChange={(e) => setTags(e.target.value)} />
+          <label className="block">Tags:</label>
+          <select
+            name="tags"
+            value={formData.tags}
+            onChange={handleTagChange}
+            multiple // Allow multiple selections
+            className="form-select w-full"
+          >
+            {tags.map(tag => (
+              <option key={tag._id} value={tag._id}>
+                {tag.name}
+              </option>
+            ))}
+          </select>
         </div>
-        <div>
-          <label>Rating:</label>
-          <input type="text" value={rating} onChange={(e) => setRating(e.target.value)} />
-        </div>
-        <div>
-          <label>Language:</label>
-          <input type="text" value={language} onChange={(e) => setLanguage(e.target.value)} />
-        </div>
-        <div>
-          <label>Target Audience:</label>
-          <input type="text" value={targetAudience} onChange={(e) => setTargetAudience(e.target.value)} />
-        </div>
-        <button type="submit">Create Story</button>
+        <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Create Story
+        </button>
       </form>
     </div>
   );

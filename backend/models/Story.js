@@ -7,14 +7,15 @@ const StorySchema = new mongoose.Schema({
     cover: { type: String },
     categories: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }],
     tags: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tag" }],
-    targetAudience: { type: String },
-    language: { type: String, default: "ar" },
-    rating: { type: Number },
     author: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true,
     },
+    approved: {
+        type: Boolean,
+        default: false, 
+      },
     isCompleted: { type: Boolean, default: false },
 }, { timestamps: true });
 

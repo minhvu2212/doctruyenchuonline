@@ -16,6 +16,10 @@ module.exports = function(req, res, next) {
             // Xác thực token và gán thông tin người dùng vào req.verifiedUser
             const verified = jwt.verify(token, config.jwtSecret);
             req.verifiedUser = verified; // Sử dụng req.verifiedUser thay vì req.user
+
+            // Console log khi xác thực token thành công
+            console.log('Token authentication successful');
+
             next();
         } catch (error) {
             console.error('Error authenticating user:', error.message);

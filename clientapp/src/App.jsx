@@ -3,6 +3,7 @@ import "./App.css";
 import IndexPage from "./pages/IndexPage";
 import RegisterPage from "./pages/RegisterPage";
 import CreateStoryPage from "./pages/CreateStoryPage";
+import AdminPage from "./pages/AdminPage";
 import LoginPage from "./pages/LoginPage";
 import Layout from "./Layout";
 import axios from "axios";
@@ -16,6 +17,7 @@ function App() {
       <Route path="/" element={<Layout />}/>
       <Route index element={<IndexPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/admin" element={<AdminPage />} />
       <Route path="/story/create" element={<CreateStoryPage />} />
       <Route path="/login" element={<LoginPage />} />
     </Routes>

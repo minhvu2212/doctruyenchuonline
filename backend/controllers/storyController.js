@@ -7,11 +7,7 @@ const createStory = async(req, res) => {
         cover: req.body.cover,
         categories: req.body.categories,
         tags: req.body.tags,
-        rating: req.body.rating,
-        language: req.body.language,
-        targetAudience: req.body.targetAudience,
         author: req.verifiedUser._id,
-        approved: false, // Thêm trường approved mặc định là false
     });
     try {
         const savedStory = await newStory.save();

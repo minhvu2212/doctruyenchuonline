@@ -28,8 +28,8 @@ router.delete('/categories/:categoryId', verifyToken, categoryController.deleteC
 router.put('/categories/:categoryId', verifyToken, categoryController.updateCategory);
 // Tag
 router.post('/tags', verifyToken, tagController.createTag);
-router.get('/tags', verifyToken, tagController.getTags);
-router.get('/tags/:id', verifyToken, tagController.getTag);
+router.get('/tags', tagController.getTags);
+router.get('/tags/:id', tagController.getTag);
 router.delete('/tags/:id', verifyToken, tagController.deleteTag);
 router.put('/tags/:id', verifyToken, tagController.updateTag);
 // Story routes
