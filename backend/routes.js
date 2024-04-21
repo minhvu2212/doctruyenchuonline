@@ -9,6 +9,7 @@ const adminController = require('./controllers/adminController');
 const commentController = require('./controllers/commentController');
 const isAdmin = require("./middlewares/isAdmin");
 const verifyToken = require("./middlewares/verifyToken");
+const upload = require("./middlewares/multer");
 const isStoryOwner = require("./middlewares/isStoryOwner");
 const categoryController = require('./controllers/categoryController');
 const tagController = require('./controllers/tagController');
@@ -36,7 +37,7 @@ router.get('/tags/:id', tagController.getTag);
 router.delete('/tags/:id', verifyToken, tagController.deleteTag);
 router.put('/tags/:id', verifyToken, tagController.updateTag);
 // Story routes
-router.post('/createStory',verifyToken, createStory);
+router.post('/createStory',verifyToken, upload.single('cover'), createStory);
 router.get('/getStories', getStories);
 router.get('/getStory/:id',findStoryMiddleware, getStory);
 router.delete('/deleteStory/:id',verifyToken,isStoryOwner, deleteStory);

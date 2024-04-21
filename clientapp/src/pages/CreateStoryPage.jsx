@@ -7,7 +7,7 @@ const CreateStoryPage = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    cover: "",
+    cover: null, // Thay đổi giá trị ban đầu của cover thành null
     categories: [],
     tags: [],
   });
@@ -61,22 +61,40 @@ const CreateStoryPage = () => {
     setFormData({ ...formData, tags: selectedTags });
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setFormData({ ...formData, cover: file });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Sử dụng FormData để xử lý tệp tin tải lên
+    const formDataToSend = new FormData();
+    formDataToSend.append('title', formData.title);
+    formDataToSend.append('description', formData.description);
+    formDataToSend.append('cover', formData.cover); // Đảm bảo cover được gắn như là một file
+    formData.categories.forEach((category) => {
+      formDataToSend.append('categories', category);
+    });
+    formData.tags.forEach((tag) => {
+      formDataToSend.append('tags', tag);
+    });
+
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/createStory",
-        formData,
+        'http://localhost:5000/api/createStory',
+        formDataToSend,
         {
           headers: {
-            Authorization: `Bearer ${token}`, // Gửi token trong tiêu đề Authorization
+            Authorization: `Bearer ${token}`,
+            // 'Content-Type': 'multipart/form-data', // Dòng này không cần thiết vì axios sẽ tự xác định khi dùng FormData
           },
         }
       );
-      console.log("New story created:", response.data);
+      console.log('New story created:', response.data);
       // Redirect to the newly created story page or do something else
     } catch (error) {
-      console.error("Error creating story:", error);
+      console.error('Error creating story:', error);
       // Handle error, display error message, etc.
     }
   };
@@ -94,7 +112,7 @@ const CreateStoryPage = () => {
       <Header /> {/* Thêm header */}
       <div className="container mx-auto p-4">
         <h2 className="text-2xl font-bold mb-4">Thêm Truyện mới</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
           <div>
             <label className="block">Tên Truyện:</label>
             <input
@@ -117,10 +135,9 @@ const CreateStoryPage = () => {
           <div>
             <label className="block">Bìa:</label>
             <input
-              type="text"
+              type="file"
               name="cover"
-              value={formData.cover}
-              onChange={handleChange}
+              onChange={handleFileChange}
               className="border border-gray-400 rounded-md py-2 px-4 w-full"
             />
           </div>

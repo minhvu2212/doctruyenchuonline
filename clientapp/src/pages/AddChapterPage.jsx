@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const ChapterPage = () => {
+const AddChapterPage = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
@@ -120,4 +120,4 @@ const ChapterPage = () => {
   );
 };
 
-export default ChapterPage;
+export default AddChapterPage;

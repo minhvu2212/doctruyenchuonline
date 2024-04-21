@@ -1,7 +1,9 @@
-import React, { useState, useEffect, } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Layout from '../Layout';
+import Header from '../Header'; // Import Header component
+import Footer from '../Footer'; // Import Footer component
 function ProfilePage() {
   const [userData, setUserData] = useState(null);
   const [userStories, setUserStories] = useState([]);
@@ -44,27 +46,35 @@ function ProfilePage() {
 
   return (
     <div>
-      <h2>Thông tin cá nhân</h2>
-      {userData && (
-        <div>
-          <p><strong>Username:</strong> {userData.username}</p>
-          {/* Hiển thị thông tin cá nhân khác nếu có */}
+    <Header /> {/* Thêm Header vào đây */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="bg-white shadow-md rounded px-8 py-6 mb-8">
+          <h2 className="text-2xl font-bold mb-4">Thông tin cá nhân</h2>
+          {userData && (
+            <div>
+              <p><strong>Username:</strong> {userData.username}</p>
+              {/* Hiển thị thông tin cá nhân khác nếu có */}
+            </div>
+          )}
         </div>
-      )}
 
-      <h2>Các truyện đã đăng</h2>
-      {userStories.length > 0 ? (
-        <ul>
-          {userStories.map(story => (
-            <li key={story.id}>
-              <p><strong>Tiêu đề:</strong> {story.title}</p>
-              {/* Hiển thị thông tin truyện khác nếu có */}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>Không có truyện nào được đăng.</p>
-      )}
+        <div className="bg-white shadow-md rounded px-8 py-6 mb-8">
+          <h2 className="text-2xl font-bold mb-4">Các truyện đã đăng</h2>
+          {userStories.length > 0 ? (
+            <ul>
+              {userStories.map(story => (
+                <li key={story.id} className="my-2">
+                  <p><strong>Tiêu đề:</strong> {story.title}</p>
+                  {/* Hiển thị thông tin truyện khác nếu có */}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Không có truyện nào được đăng.</p>
+          )}
+        </div>
+      </div>
+      <Footer /> {/* Thêm Footer vào đây */}
     </div>
   );
 }

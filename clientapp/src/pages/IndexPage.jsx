@@ -23,7 +23,7 @@ function IndexPage() {
     <div>
       <Header /> {/* Thêm Header vào đây */}
       <div className="max-w-3xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-4">List of Stories</h1>
+        <h1 className="text-3xl font-bold mb-4">Danh Sách Truyện</h1>
         {stories.length > 0 ? (
           <ul>
             {stories.map(story => (

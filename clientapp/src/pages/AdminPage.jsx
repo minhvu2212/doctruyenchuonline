@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import Header from '../Header'; // Import Header component
+import Footer from '../Footer'; // Import Footer component
 const AdminPage = () => {
   const [pendingStories, setPendingStories] = useState([]);
   const [selectedStory, setSelectedStory] = useState(null);
@@ -63,31 +64,40 @@ const AdminPage = () => {
 
   return (
     <div>
-      <h1>Pending Stories</h1>
+      <Header /> {/* Thêm Header vào đây */}
+    <div>
+      <h1 className="text-2xl font-bold mb-4">Truyện Cần Duyệt</h1>
       <ul>
         {pendingStories.map(story => (
-          <li key={story._id}>
-            <div>Title: {story.title}</div>
-            <div>Author: {story.author}</div>
-            <div>Content: {story.content}</div>
-            <button onClick={() => approveStory(story._id)}>Approve</button>
-            <button onClick={() => viewStoryDetails(story._id)}>View Details</button>
+          <li key={story._id} className="mb-4">
+            <div className="border border-gray-200 p-4 rounded">
+              <p className="font-bold">Tên: {story.title}</p>
+              <p className="text-gray-700">Người đăng: {story.author}</p>
+              {/* You can truncate content if it's too long */}
+              <p className="text-gray-700 truncate">{story.content}</p>
+              <div className="flex mt-2">
+                <button onClick={() => approveStory(story._id)} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mr-2">Approve</button>
+                <button onClick={() => viewStoryDetails(story._id)} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">View Details</button>
+              </div>
+            </div>
           </li>
         ))}
       </ul>
 
       {selectedStory && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close" onClick={closeStoryDetails}>&times;</span>
-            <h2>Story Details</h2>
-            <p>Title: {selectedStory.title}</p>
-            <p>Author: {selectedStory.author}</p>
-            <p>Content: {selectedStory.content}</p>
+        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-50">
+          <div className="bg-white p-8 rounded shadow-lg">
+            <span className="text-gray-600 text-xl absolute top-2 right-4 cursor-pointer" onClick={closeStoryDetails}>&times;</span>
+            <h2 className="text-2xl font-bold mb-4">Story Details</h2>
+            <p><strong>Tên:</strong> {selectedStory.title}</p>
+            <p><strong>Người đăng:</strong> {selectedStory.author}</p>
+            <p><strong>Content:</strong> {selectedStory.content}</p>
             {/* Add more details as needed */}
           </div>
         </div>
       )}
+    </div>
+    <Footer /> {/* Thêm Footer vào đây */}
     </div>
   );
 };

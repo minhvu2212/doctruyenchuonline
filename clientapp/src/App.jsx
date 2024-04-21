@@ -6,7 +6,7 @@ import CreateStoryPage from "./pages/CreateStoryPage";
 import AdminPage from "./pages/AdminPage";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
-import ChapterPage from "./pages/ChapterPage";
+import AddChapterPage from "./pages/AddChapterPage";
 import Layout from "./Layout";
 import axios from "axios";
 
@@ -21,7 +21,7 @@ function App() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/admin" element={<AdminPage />} />
       <Route path="/story/create" element={<CreateStoryPage />} />
-      <Route path="/story/chapter/add" element={<ChapterPage />} />
+      <Route path="/story/chapter/add" element={<AddChapterPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/login" element={<LoginPage />} />
     </Routes>

@@ -1,18 +1,46 @@
 const Story = require("../models/Story");
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' }); // Thư mục lưu trữ tạm thời cho các file tải lên
 
-const createStory = async(req, res) => {
-    const newStory = new Story({
-        title: req.body.title,
-        description: req.body.description,
-        cover: req.body.cover,
-        categories: req.body.categories,
-        tags: req.body.tags,
-        author: req.verifiedUser._id,
-    });
+const createStory = async (req, res) => {
     try {
+        console.log("Creating new story...");
+        
+        // Kiểm tra xem có file cover được tải lên không
+        if (!req.file) {
+            console.log("No cover image uploaded");
+            return res.status(400).json({ message: 'Cover image is required' });
+        }
+
+        // Lấy đường dẫn của file cover đã tải lên
+        const coverPath = req.file.path;
+        console.log("Cover image path:", coverPath);
+
+        // Tạo một câu chuyện mới với các thông tin từ request body
+        const newStory = new Story({
+            title: req.body.title,
+            description: req.body.description,
+            cover: coverPath, // Đường dẫn đến file cover
+            categories: req.body.categories,
+            tags: req.body.tags,
+            author: req.verifiedUser._id,
+        });
+
+        // Lưu câu chuyện vào cơ sở dữ liệu
+        console.log("Saving new story...");
         const savedStory = await newStory.save();
+        console.log("New story saved:", savedStory);
+
         return res.status(201).json(savedStory);
     } catch (err) {
+        console.error("Error creating story:", err);
+
+        // Xóa file cover đã tải lên nếu có lỗi xảy ra
+        if (req.file) {
+            console.log("Deleting uploaded cover image due to error...");
+            fs.unlinkSync(req.file.path);
+        }
+
         return res.status(500).json(err);
     }
 };
