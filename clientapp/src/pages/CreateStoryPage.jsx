@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Header from "../Header"; // Import Header component
+import Footer from "../Footer"; // Import Footer component
 
 const CreateStoryPage = () => {
   const [formData, setFormData] = useState({
@@ -50,12 +52,12 @@ const CreateStoryPage = () => {
   };
 
   const handleCategoryChange = (e) => {
-    const selectedCategories = Array.from(e.target.selectedOptions, option => option.value);
+    const selectedCategories = Array.from(e.target.selectedOptions, (option) => option.value);
     setFormData({ ...formData, categories: selectedCategories });
   };
 
   const handleTagChange = (e) => {
-    const selectedTags = Array.from(e.target.selectedOptions, option => option.value);
+    const selectedTags = Array.from(e.target.selectedOptions, (option) => option.value);
     setFormData({ ...formData, tags: selectedTags });
   };
 
@@ -67,8 +69,8 @@ const CreateStoryPage = () => {
         formData,
         {
           headers: {
-            Authorization: `Bearer ${token}` // Gửi token trong tiêu đề Authorization
-          }
+            Authorization: `Bearer ${token}`, // Gửi token trong tiêu đề Authorization
+          },
         }
       );
       console.log("New story created:", response.data);
@@ -88,75 +90,82 @@ const CreateStoryPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4">Create New Story</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block">Title:</label>
-          <input
-            type="text"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            className="form-input w-full"
-          />
-        </div>
-        <div>
-          <label className="block">Description:</label>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            className="form-textarea w-full"
-          />
-        </div>
-        <div>
-          <label className="block">Cover:</label>
-          <input
-            type="text"
-            name="cover"
-            value={formData.cover}
-            onChange={handleChange}
-            className="form-input w-full"
-          />
-        </div>
-        <div>
-          <label className="block">Categories:</label>
-          <select
-            name="categories"
-            value={formData.categories}
-            onChange={handleCategoryChange}
-            multiple // Allow multiple selections
-            className="form-select w-full"
+    <>
+      <Header /> {/* Thêm header */}
+      <div className="container mx-auto p-4">
+        <h2 className="text-2xl font-bold mb-4">Thêm Truyện mới</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block">Tên Truyện:</label>
+            <input
+              type="text"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              className="border border-gray-400 rounded-md py-2 px-4 w-full"
+            />
+          </div>
+          <div>
+            <label className="block">Mô Tả:</label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              className="border border-gray-400 rounded-md py-2 px-4 w-full"
+            />
+          </div>
+          <div>
+            <label className="block">Bìa:</label>
+            <input
+              type="text"
+              name="cover"
+              value={formData.cover}
+              onChange={handleChange}
+              className="border border-gray-400 rounded-md py-2 px-4 w-full"
+            />
+          </div>
+          <div>
+            <label className="block">Thể loại:</label>
+            <select
+              name="categories"
+              value={formData.categories}
+              onChange={handleCategoryChange}
+              multiple // Allow multiple selections
+              className="border border-gray-400 rounded-md py-2 px-4 w-full"
+            >
+              {categories.map((category) => (
+                <option key={category._id} value={category._id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block">Tags:</label>
+            <select
+              name="tags"
+              value={formData.tags}
+              onChange={handleTagChange}
+              multiple // Allow multiple selections
+              className="border border-gray-400 rounded-md py-2 px-4 w-full"
+            >
+              {tags.map((tag) => (
+                <option key={tag._id} value={tag._id}>
+                  {tag.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button
+            type="submit"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md"
           >
-            {categories.map(category => (
-              <option key={category._id} value={category._id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block">Tags:</label>
-          <select
-            name="tags"
-            value={formData.tags}
-            onChange={handleTagChange}
-            multiple // Allow multiple selections
-            className="form-select w-full"
-          >
-            {tags.map(tag => (
-              <option key={tag._id} value={tag._id}>
-                {tag.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-          Create Story
-        </button>
-      </form>
-    </div>
+            Tạo Truyện
+          </button>
+        </form>
+      </div>
+      <Footer /> {/* Thêm footer */}
+    </>
   );
 };
 

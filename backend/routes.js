@@ -3,7 +3,7 @@ const router = express.Router();
 
 const userController = require('./controllers/userController');
 const {
-    createStory, getStories, getStory, deleteStory, updateStory
+    createStory, getStories, getStory, deleteStory, updateStory, userStories
 } = require('./controllers/storyController');
 const adminController = require('./controllers/adminController');
 const commentController = require('./controllers/commentController');
@@ -15,11 +15,14 @@ const tagController = require('./controllers/tagController');
 const chapterController = require('./controllers/chapterController');
 const readController = require('./controllers/readController');
 const bookmarkController = require('./controllers/bookmarkController');
+const findStoryMiddleware = require('./middlewares/findStoryMiddleware');
 // User routes
 router.post('/users/register', userController.register);
 router.post('/users/login',  userController.login);
 router.get('/users/logout', userController.logout);
 router.put('/profile', verifyToken, userController.updateProfile);
+router.get('/profile', verifyToken, userController.getProfile);
+router.get('/profile/userstories', verifyToken,userStories);
 // CategoryRoutes
 router.post('/categories', verifyToken, categoryController.createCategory);
 router.get('/categories', categoryController.getCategories);
@@ -34,15 +37,15 @@ router.delete('/tags/:id', verifyToken, tagController.deleteTag);
 router.put('/tags/:id', verifyToken, tagController.updateTag);
 // Story routes
 router.post('/createStory',verifyToken, createStory);
-router.get('/getStories',verifyToken, getStories);
-router.get('/getStory/:id',verifyToken, getStory);
+router.get('/getStories', getStories);
+router.get('/getStory/:id',findStoryMiddleware, getStory);
 router.delete('/deleteStory/:id',verifyToken,isStoryOwner, deleteStory);
 router.delete('/deleteStoryadmin/:id',verifyToken,isAdmin, deleteStory);
 router.put('/updateStory/:id',verifyToken,isStoryOwner, updateStory);
 
 //Chapter
-router.post('/chapters', verifyToken, chapterController.createChapter);
-router.get('/chapters/story/:storyId', verifyToken, chapterController.getStoryChapters);
+router.post('/chapters/:storyId', verifyToken,findStoryMiddleware, chapterController.createChapter);
+router.get('/chapters/story/:storyId', verifyToken,findStoryMiddleware, chapterController.getStoryChapters);
 router.get('/chapters/:chapterId', verifyToken, chapterController.getChapter);
 router.delete('/chapters/:chapterId', verifyToken, chapterController.deleteChapter);
 router.put('/chapters/:chapterId', verifyToken, chapterController.updateChapter);

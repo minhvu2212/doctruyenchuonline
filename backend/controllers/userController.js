@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const config = require('../config');
 const Token = require('../models/Token');
+const Story = require("../models/Story");
 // Đăng ký người dùng mới
 exports.register = async (req, res) => {
   try {
@@ -50,7 +51,27 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+exports.getProfile = async (req, res) => {
+  try {
+    const userId = req.verifiedUser._id;
 
+    // Tìm người dùng trong cơ sở dữ liệu dựa trên userId
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Trả về thông tin hồ sơ người dùng (loại bỏ mật khẩu trước khi gửi lại)
+    res.status(200).json({
+      _id: user._id,
+      username: user.username,
+      // Bạn có thể thêm các trường thông tin hồ sơ khác tại đây nếu cần
+    });
+  } catch (error) {
+    console.error('Error fetching user profile:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 // Cập nhật hồ sơ người dùng
 exports.updateProfile = async (req, res) => {
   try {
