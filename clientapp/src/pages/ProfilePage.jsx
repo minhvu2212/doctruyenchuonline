@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Layout from '../Layout';
-import Header from '../Header'; // Import Header component
-import Footer from '../Footer'; // Import Footer component
+
 function ProfilePage() {
   const [userData, setUserData] = useState(null);
   const [userStories, setUserStories] = useState([]);
@@ -45,8 +43,7 @@ function ProfilePage() {
   }, []);
 
   return (
-    <div>
-    <Header /> {/* Thêm Header vào đây */}
+
       <div className="container mx-auto px-4 py-8">
         <div className="bg-white shadow-md rounded px-8 py-6 mb-8">
           <h2 className="text-2xl font-bold mb-4">Thông tin cá nhân</h2>
@@ -74,8 +71,7 @@ function ProfilePage() {
           )}
         </div>
       </div>
-      <Footer /> {/* Thêm Footer vào đây */}
-    </div>
+
   );
 }
 

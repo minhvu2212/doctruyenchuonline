@@ -35,9 +35,10 @@ exports.createAdmin = async (req, res) => {
 exports.approveStory = async (req, res) => {
   try {
     // Kiểm tra xem người dùng đã đăng nhập có phải là quản trị viên không
-    if (!req.user || !req.user.isAdmin) {
+    if (!req.verifiedUser || req.verifiedUser.isAdmin !== true) {
       return res.status(403).json({ message: 'Access denied: Admin privileges required' });
     }
+    
 
     // Kiểm tra xem có ID của câu chuyện cần duyệt trong params hay không
     const { id } = req.params;
@@ -67,5 +68,34 @@ exports.approveStory = async (req, res) => {
   }
 };
 
+// Hàm kiểm tra nội dung của truyện
+exports.checkStoryContent = async (req, res) => {
+  try {
+    const { content } = req.body;
 
-// Thêm các hàm quản trị khác nếu cần
+    // Kiểm tra nội dung của truyện
+    const isContentInappropriate = checkForInappropriateKeywords(content);
+
+    // Trả về kết quả kiểm tra
+    res.status(200).json({ isContentInappropriate });
+  } catch (error) {
+    console.error('Error checking story content:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Hàm kiểm tra từ khóa của truyện
+const checkForInappropriateKeywords = (content) => {
+  const inappropriateKeywords = ['explicit', 'obscene', 'vulgar', 'offensive', 'inappropriate', 'profanity'];
+
+  const lowerCaseContent = content.toLowerCase();
+
+  for (const keyword of inappropriateKeywords) {
+    if (lowerCaseContent.includes(keyword)) {
+      return true;
+    }
+  }
+  return false;
+};
+
+

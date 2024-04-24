@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+import 'tailwindcss/tailwind.css'; // Import Tailwind CSS
+
 const AddChapterPage = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false); // Thêm state để kiểm soát việc hiển thị thông báo thành công
   const [userStories, setUserStories] = useState([]);
   const [selectedStory, setSelectedStory] = useState('');
   const [nextChapterOrder, setNextChapterOrder] = useState(1);
@@ -13,10 +16,10 @@ const AddChapterPage = () => {
   useEffect(() => {
     const fetchUserStories = async () => {
       try {
-        const token = localStorage.getItem('token'); // Lấy token từ localStorage
+        const token = localStorage.getItem('token');
         const response = await axios.get('http://localhost:5000/api/profile/userstories', {
           headers: {
-            Authorization: `Bearer ${token}`, // Thêm token vào tiêu đề Authorization
+            Authorization: `Bearer ${token}`,
           },
         });
         setUserStories(response.data);
@@ -37,40 +40,35 @@ const AddChapterPage = () => {
         },
       });
       const nextOrder = response.data.length + 1;
-        setNextChapterOrder(nextOrder);
-      // Cập nhật state hoặc thực hiện hành động cần thiết với dữ liệu mới
-      console.log('Chapter details:', response.data);
+      setNextChapterOrder(nextOrder);
     } catch (error) {
       console.error('Error fetching chapter details:', error);
     }
   };
-  
-  // Đảm bảo rằng fetchChapterDetails được gọi khi component được mount hoặc khi selectedStory thay đổi
+
   useEffect(() => {
     if (selectedStory) {
       fetchChapterDetails();
     }
   }, [selectedStory]);
-  
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
-      const token = localStorage.getItem('token'); // Lấy token từ localStorage
-      // Gửi yêu cầu POST để upload chương mới
+      const token = localStorage.getItem('token');
       const response = await axios.post(`http://localhost:5000/api/chapters/${selectedStory}`, {
         title,
         content,
         order: nextChapterOrder,
       }, {
         headers: {
-          Authorization: `Bearer ${token}`, // Thêm token vào tiêu đề Authorization
+          Authorization: `Bearer ${token}`,
         },
       });
-  
+
       console.log('Chapter created:', response.data);
-      // Sau khi upload thành công, gọi lại hàm fetch để lấy dữ liệu mới nhất
+      setSuccess(true); // Đặt success thành true khi thêm chap thành công
       fetchChapterDetails();
     } catch (error) {
       setError(error.response.data.message);
@@ -79,43 +77,64 @@ const AddChapterPage = () => {
     }
   };
 
+  // Xử lý sự kiện khi nhấn nút "Tiếp tục thêm chap mới"
+  const handleContinue = () => {
+    setTitle('');
+    setContent('');
+    setError(null);
+    setSuccess(false); // Đặt success về false khi người dùng chọn tiếp tục thêm chap mới
+  };
+
   return (
-    <div>
-      <h2>Post a New Chapter</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="story">Choose a Story:</label>
-          <select id="story" value={selectedStory} onChange={(e) => setSelectedStory(e.target.value)} required>
-            <option value="">Select a story</option>
-            {userStories.map(story => (
-              <option key={story._id} value={story._id}>{story.title}</option>
-            ))}
-          </select>
+    <div className="p-4 mx-auto max-w-screen-md">
+      <h2 className="text-xl font-bold mb-4">Thêm Chapter mới</h2>
+      {success ? ( // Hiển thị thông báo thành công nếu success là true
+        <div className="mb-4 text-green-500 font-semibold">Chapter đã được thêm thành công!</div>
+      ) : (
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label htmlFor="story" className="block mb-2">Chọn Truyện:</label>
+            <select id="story" value={selectedStory} onChange={(e) => setSelectedStory(e.target.value)} required className="w-full p-2 border rounded">
+              <option value="">Select a story</option>
+              {userStories.map(story => (
+                <option key={story._id} value={story._id}>{story.title}</option>
+              ))}
+            </select>
+          </div>
+          <div className="mb-4">
+            <label htmlFor="title" className="block mb-2">Tiêu đề Chap:</label>
+            <input
+              type="text"
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              className="w-full p-2 border rounded"
+            />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="content" className="block mb-2">Nội dung:</label>
+            <textarea
+              id="content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              required
+              className="w-full p-2 border rounded"
+            ></textarea>
+          </div>
+          <div className="flex justify-end">
+            <button type="submit" disabled={loading} className="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-300 disabled:cursor-not-allowed">
+              {loading ? 'Submitting...' : 'Submit'}
+            </button>
+          </div>
+        </form>
+      )}
+      {error && <div className="text-red-500">{error}</div>}
+      {success && ( // Hiển thị nút "Tiếp tục thêm chap mới" nếu success là true
+        <div className="mt-4 flex justify-end">
+          <button onClick={handleContinue} className="bg-green-500 text-white px-4 py-2 rounded">Tiếp tục thêm chap mới</button>
         </div>
-        <div>
-          <label htmlFor="title">Title:</label>
-          <input
-            type="text"
-            id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="content">Content:</label>
-          <textarea
-            id="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            required
-          ></textarea>
-        </div>
-        <button type="submit" disabled={loading}>
-          {loading ? 'Submitting...' : 'Submit'}
-        </button>
-      </form>
-      {error && <div>Error: {error}</div>}
+      )}
     </div>
   );
 };

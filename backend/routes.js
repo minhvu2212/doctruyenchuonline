@@ -39,7 +39,7 @@ router.put('/tags/:id', verifyToken, tagController.updateTag);
 // Story routes
 router.post('/createStory',verifyToken, upload.single('cover'), createStory);
 router.get('/getStories', getStories);
-router.get('/getStory/:id',findStoryMiddleware, getStory);
+router.get('/getStory/:storyId',findStoryMiddleware, getStory);
 router.delete('/deleteStory/:id',verifyToken,isStoryOwner, deleteStory);
 router.delete('/deleteStoryadmin/:id',verifyToken,isAdmin, deleteStory);
 router.put('/updateStory/:id',verifyToken,isStoryOwner, updateStory);
@@ -63,7 +63,7 @@ router.delete('/stories/:storyId/bookmark', verifyToken, bookmarkController.unbo
 // Admin routes
 router.post('/admin/approveStory', verifyToken, isAdmin, adminController.approveStory);
 router.post('/admin/createAdmin', verifyToken, isAdmin, adminController.createAdmin);
-
+router.post('/check-content',verifyToken, isAdmin, adminController.checkStoryContent);
 // Comment routes
 router.post('/stories/:storyId/comments', verifyToken, commentController.createComment);
 router.get('/stories/:storyId/comments', verifyToken, commentController.getCommentsForStory);

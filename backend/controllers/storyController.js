@@ -46,14 +46,24 @@ const createStory = async (req, res) => {
 };
 
 
-const getStories = async(req, res) => {
+const getStories = async (req, res) => {
     try {
-        const stories = await Story.find();
+        const { title } = req.query;
+        let stories;
+        if (title !== undefined && title !== null) {
+            const encodedTitle = decodeURIComponent(title);
+            stories = await Story.find({ title: { $regex: new RegExp(encodedTitle, 'i') } });
+        } else {
+            stories = await Story.find();
+        }
         return res.status(200).json(stories);
     } catch (err) {
         return res.status(500).json(err);
     }
 };
+
+
+
 
 const getStory = async (req, res) => {
     try {

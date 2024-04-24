@@ -1,12 +1,14 @@
 import Footer from "./Footer";
 import Header from "./Header";
-import { Outlet } from "react-router-dom";
 
-export default function Layout() {
+
+export default function Layout({children}) {
   return (
     <div className="mt-2 sm:mt-5 flex flex-col min-h-screen">
       <Header />
-      <Outlet />
+      <div className="pb-16">
+      {children}
+      </div>
       <Footer />
     </div>
   );

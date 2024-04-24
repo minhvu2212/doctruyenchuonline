@@ -7,6 +7,7 @@ import AdminPage from "./pages/AdminPage";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
 import AddChapterPage from "./pages/AddChapterPage";
+import StoryPage from "./pages/StoryPage";
 import Layout from "./Layout";
 import axios from "axios";
 
@@ -15,6 +16,8 @@ axios.defaults.withCredentials = true;
 
 function App() {
   return (
+    <div>
+      <Layout>
     <Routes>
       <Route path="/" element={<Layout />}/>
       <Route index element={<IndexPage />} />
@@ -22,9 +25,12 @@ function App() {
       <Route path="/admin" element={<AdminPage />} />
       <Route path="/story/create" element={<CreateStoryPage />} />
       <Route path="/story/chapter/add" element={<AddChapterPage />} />
+      <Route path="/stories/:storyId" element={<StoryPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/login" element={<LoginPage />} />
     </Routes>
+    </Layout>
+    </div>
   );
 }
 
