@@ -34,22 +34,27 @@ const StoryPage = () => {
     fetchChapters();
   }, [storyId]);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (loading) return <div className="text-center mt-4">Loading...</div>;
+  if (error) return <div className="text-center mt-4">Error: {error}</div>;
 
   return (
-    <div>
-      <h1>{story.title}</h1>
-      <p>{story.description}</p>
+    <div className="max-w-3xl mx-auto px-4 py-8">
+      {story && (
+        <>
+          <h1 className="text-3xl font-bold">{story.title}</h1>
+          <p className="text-gray-600 mt-2">Tác giả: {story.author && story.author.username}</p>
+          <p className="mt-4">Giới thiệu: {story.description}</p>
 
-      <h2>Chapters</h2>
-      <ul>
-        {chapters.map(chapter => (
-          <li key={chapter._id}>
-            <a href={`/chapters/${chapter._id}`}>{chapter.title}</a>
-          </li>
-        ))}
-      </ul>
+          <h2 className="text-2xl font-bold mt-8">Danh sách chương</h2>
+          <ul className="mt-4">
+            {chapters.map((chapter, index) => (
+              <li key={chapter._id} className="mb-2">
+                <a href={`/chapter/${chapter._id}`} className="text-blue-500 hover:text-blue-700">{`Chap ${index + 1}: ${chapter.title}`}</a>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   );
 };

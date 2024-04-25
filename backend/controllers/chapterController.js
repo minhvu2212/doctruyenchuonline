@@ -25,13 +25,14 @@ const getStoryChapters = async(req, res) => {
     }
 };
 
-const getChapter = async(req, res) => {
+const getChapter = async (req, res) => {
     const chapter = req.chapter;
     try {
         const readExist = await readModels.findOne({
             chapter: chapter._id,
             reader: req.verifiedUser._id,
         });
+        console.log('readExist:', readExist); // Log để kiểm tra giá trị của readExist
         if (!readExist) {
             const newRead = new readModels({
                 chapter: chapter._id,
@@ -79,7 +80,7 @@ const getChapter = async(req, res) => {
                                             $eq: ["$$chapterId", "$chapter"],
                                             $eq: [
                                                 "$voter",
-                                                mongoose.Types.ObjectId(req.verifiedUser._id),
+                                                new mongoose.Types.ObjectId(req.verifiedUser._id),
                                             ],
                                         },
                                     },
@@ -113,11 +114,16 @@ const getChapter = async(req, res) => {
                 ] :
                 []),
         ]);
+        console.log('chap:', chap); // Log để kiểm tra giá trị của chap
         return res.status(200).json(chap[0]);
     } catch (err) {
+        console.error('Error:', err); // Log để kiểm tra lỗi
         return res.status(500).json(err);
     }
 };
+
+
+
 
 const deleteChapter = async(req, res) => {
     const chapter = req.chapter;

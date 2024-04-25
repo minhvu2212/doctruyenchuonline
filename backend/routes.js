@@ -17,6 +17,7 @@ const chapterController = require('./controllers/chapterController');
 const readController = require('./controllers/readController');
 const bookmarkController = require('./controllers/bookmarkController');
 const findStoryMiddleware = require('./middlewares/findStoryMiddleware');
+const chapterMiddleware = require("./middlewares/chapterMiddleware");
 // User routes
 router.post('/users/register', userController.register);
 router.post('/users/login',  userController.login);
@@ -46,8 +47,8 @@ router.put('/updateStory/:id',verifyToken,isStoryOwner, updateStory);
 
 //Chapter
 router.post('/chapters/:storyId', verifyToken,findStoryMiddleware, chapterController.createChapter);
-router.get('/chapters/story/:storyId', verifyToken,findStoryMiddleware, chapterController.getStoryChapters);
-router.get('/chapters/:chapterId', verifyToken, chapterController.getChapter);
+router.get('/chapters/story/:storyId',findStoryMiddleware, chapterController.getStoryChapters);
+router.get('/chapters/:chapterId',verifyToken, chapterMiddleware.chapterExists, chapterController.getChapter);
 router.delete('/chapters/:chapterId', verifyToken, chapterController.deleteChapter);
 router.put('/chapters/:chapterId', verifyToken, chapterController.updateChapter);
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 import 'tailwindcss/tailwind.css'; // Import Tailwind CSS
 
@@ -8,10 +9,11 @@ const AddChapterPage = () => {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false); // Thêm state để kiểm soát việc hiển thị thông báo thành công
+  const [success, setSuccess] = useState(false);
   const [userStories, setUserStories] = useState([]);
   const [selectedStory, setSelectedStory] = useState('');
   const [nextChapterOrder, setNextChapterOrder] = useState(1);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserStories = async () => {
@@ -68,7 +70,7 @@ const AddChapterPage = () => {
       });
 
       console.log('Chapter created:', response.data);
-      setSuccess(true); // Đặt success thành true khi thêm chap thành công
+      setSuccess(true);
       fetchChapterDetails();
     } catch (error) {
       setError(error.response.data.message);
@@ -77,25 +79,24 @@ const AddChapterPage = () => {
     }
   };
 
-  // Xử lý sự kiện khi nhấn nút "Tiếp tục thêm chap mới"
   const handleContinue = () => {
     setTitle('');
     setContent('');
     setError(null);
-    setSuccess(false); // Đặt success về false khi người dùng chọn tiếp tục thêm chap mới
+    setSuccess(false);
   };
 
   return (
     <div className="p-4 mx-auto max-w-screen-md">
       <h2 className="text-xl font-bold mb-4">Thêm Chapter mới</h2>
-      {success ? ( // Hiển thị thông báo thành công nếu success là true
+      {success ? (
         <div className="mb-4 text-green-500 font-semibold">Chapter đã được thêm thành công!</div>
       ) : (
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="story" className="block mb-2">Chọn Truyện:</label>
             <select id="story" value={selectedStory} onChange={(e) => setSelectedStory(e.target.value)} required className="w-full p-2 border rounded">
-              <option value="">Select a story</option>
+              <option value="">Chọn một truyện</option>
               {userStories.map(story => (
                 <option key={story._id} value={story._id}>{story.title}</option>
               ))}
@@ -124,13 +125,13 @@ const AddChapterPage = () => {
           </div>
           <div className="flex justify-end">
             <button type="submit" disabled={loading} className="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-300 disabled:cursor-not-allowed">
-              {loading ? 'Submitting...' : 'Submit'}
+              {loading ? 'Đang gửi...' : 'Gửi'}
             </button>
           </div>
         </form>
       )}
       {error && <div className="text-red-500">{error}</div>}
-      {success && ( // Hiển thị nút "Tiếp tục thêm chap mới" nếu success là true
+      {success && (
         <div className="mt-4 flex justify-end">
           <button onClick={handleContinue} className="bg-green-500 text-white px-4 py-2 rounded">Tiếp tục thêm chap mới</button>
         </div>

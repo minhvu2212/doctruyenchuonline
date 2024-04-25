@@ -12,7 +12,7 @@ function ProfilePage() {
     const token = localStorage.getItem('token');
     if (!token) {
       // Nếu không có token, chuyển hướng đến trang đăng nhập
-      navigate.push('/login');
+      navigate('/login');
     } else {
       // Nếu có token, gửi yêu cầu lấy thông tin cá nhân từ backend
       axios.get('http://localhost:5000/api/profile', {
@@ -40,38 +40,46 @@ function ProfilePage() {
         console.error('Error fetching user stories:', error);
       });
     }
-  }, []);
+  }, [navigate]);
+
+  const handleAddChapter = (storyId) => {
+    navigate(`/story/chapter/add/${storyId}`);
+  };
 
   return (
-
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-white shadow-md rounded px-8 py-6 mb-8">
-          <h2 className="text-2xl font-bold mb-4">Thông tin cá nhân</h2>
-          {userData && (
-            <div>
-              <p><strong>Username:</strong> {userData.username}</p>
-              {/* Hiển thị thông tin cá nhân khác nếu có */}
-            </div>
-          )}
-        </div>
-
-        <div className="bg-white shadow-md rounded px-8 py-6 mb-8">
-          <h2 className="text-2xl font-bold mb-4">Các truyện đã đăng</h2>
-          {userStories.length > 0 ? (
-            <ul>
-              {userStories.map(story => (
-                <li key={story.id} className="my-2">
-                  <p><strong>Tiêu đề:</strong> {story.title}</p>
-                  {/* Hiển thị thông tin truyện khác nếu có */}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>Không có truyện nào được đăng.</p>
-          )}
-        </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="bg-white shadow-md rounded px-8 py-6 mb-8">
+        <h2 className="text-2xl font-bold mb-4">Thông tin cá nhân</h2>
+        {userData && (
+          <div>
+            <p><strong>Username:</strong> {userData.username}</p>
+            {/* Hiển thị thông tin cá nhân khác nếu có */}
+          </div>
+        )}
       </div>
 
+      <div className="bg-white shadow-md rounded px-8 py-6 mb-8">
+        <h2 className="text-2xl font-bold mb-4">Các truyện đã đăng</h2>
+        {userStories.length > 0 ? (
+          <ul>
+            {userStories.map(story => (
+              <li key={story._id} className="my-2">
+                <p><strong>Tiêu đề:</strong> {story.title}</p>
+                {/* Hiển thị thông tin truyện khác nếu có */}
+                <button
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2"
+                  onClick={() => handleAddChapter(story._id)}
+                >
+                  Thêm chapter mới
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>Không có truyện nào được đăng.</p>
+        )}
+      </div>
+    </div>
   );
 }
 
