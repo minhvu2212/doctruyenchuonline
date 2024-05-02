@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { Select, Input, Button, Typography, Form, message } from 'antd';
+import ReactQuill from 'react-quill';
 
-import 'tailwindcss/tailwind.css'; // Import Tailwind CSS
+import 'react-quill/dist/quill.snow.css';
+
+const { Option } = Select;
+const { Title } = Typography;
 
 const AddChapterPage = () => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -54,22 +58,21 @@ const AddChapterPage = () => {
     }
   }, [selectedStory]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     try {
       setLoading(true);
+      const values = await form.validateFields();
       const token = localStorage.getItem('token');
-      const response = await axios.post(`http://localhost:5000/api/chapters/${selectedStory}`, {
-        title,
-        content,
+      await axios.post(`http://localhost:5000/api/chapters/${selectedStory}`, {
+        title: values.title,
+        content: values.content,
         order: nextChapterOrder,
       }, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      console.log('Chapter created:', response.data);
+      message.success('Chapter đã được thêm thành công!');
       setSuccess(true);
       fetchChapterDetails();
     } catch (error) {
@@ -80,60 +83,42 @@ const AddChapterPage = () => {
   };
 
   const handleContinue = () => {
-    setTitle('');
-    setContent('');
+    form.resetFields();
     setError(null);
     setSuccess(false);
   };
 
   return (
     <div className="p-4 mx-auto max-w-screen-md">
-      <h2 className="text-xl font-bold mb-4">Thêm Chapter mới</h2>
+      <Title level={2}>Thêm Chapter mới</Title>
       {success ? (
         <div className="mb-4 text-green-500 font-semibold">Chapter đã được thêm thành công!</div>
       ) : (
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="story" className="block mb-2">Chọn Truyện:</label>
-            <select id="story" value={selectedStory} onChange={(e) => setSelectedStory(e.target.value)} required className="w-full p-2 border rounded">
-              <option value="">Chọn một truyện</option>
+        <Form form={form} onFinish={handleSubmit}>
+          <Form.Item name="story" label="Chọn Truyện" rules={[{ required: true, message: 'Vui lòng chọn một truyện' }]}>
+            <Select placeholder="Chọn một truyện" onChange={(value) => setSelectedStory(value)}>
               {userStories.map(story => (
-                <option key={story._id} value={story._id}>{story.title}</option>
+                <Option key={story._id} value={story._id}>{story.title}</Option>
               ))}
-            </select>
-          </div>
-          <div className="mb-4">
-            <label htmlFor="title" className="block mb-2">Tiêu đề Chap:</label>
-            <input
-              type="text"
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              className="w-full p-2 border rounded"
-            />
-          </div>
-          <div className="mb-4">
-            <label htmlFor="content" className="block mb-2">Nội dung:</label>
-            <textarea
-              id="content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              required
-              className="w-full p-2 border rounded"
-            ></textarea>
-          </div>
-          <div className="flex justify-end">
-            <button type="submit" disabled={loading} className="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-300 disabled:cursor-not-allowed">
-              {loading ? 'Đang gửi...' : 'Gửi'}
-            </button>
-          </div>
-        </form>
+            </Select>
+          </Form.Item>
+          <Form.Item name="title" label="Tiêu đề Chap" rules={[{ required: true, message: 'Vui lòng nhập tiêu đề chap' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="content" label="Nội dung" rules={[{ required: true, message: 'Vui lòng nhập nội dung chap' }]}>
+            <ReactQuill className="border rounded" />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" loading={loading}>
+              Gửi
+            </Button>
+          </Form.Item>
+        </Form>
       )}
       {error && <div className="text-red-500">{error}</div>}
       {success && (
         <div className="mt-4 flex justify-end">
-          <button onClick={handleContinue} className="bg-green-500 text-white px-4 py-2 rounded">Tiếp tục thêm chap mới</button>
+          <Button type="primary" onClick={handleContinue}>Tiếp tục thêm chap mới</Button>
         </div>
       )}
     </div>

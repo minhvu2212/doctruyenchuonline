@@ -23,3 +23,15 @@ button.register-button {
     'GRAD' 10,
     'opsz' 48
 }
+
+.ant-list-avatar {
+  margin-right: 16px; /* Khoảng cách giữa ảnh và nội dung */
+}
+
+.ant-list-item-meta-title {
+  margin-bottom: 0; /* Loại bỏ khoảng cách dư thừa dưới tiêu đề */
+}
+
+.ant-list-item-meta-title strong {
+  display: block; /* Đảm bảo tiêu đề truyện nằm trên dòng riêng */
+}

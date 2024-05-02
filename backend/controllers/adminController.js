@@ -1,5 +1,12 @@
 const User = require('../models/User');
 const Story = require('../models/Story');
+exports.checkAdmin = (req, res, next) => {
+  if (req.verifiedUser.isAdmin === true) {
+      res.status(200).json({ isAdmin: true });
+  } else {
+      res.status(200).json({ isAdmin: false });
+  }
+};
 
 exports.createAdmin = async (req, res) => {
   try {

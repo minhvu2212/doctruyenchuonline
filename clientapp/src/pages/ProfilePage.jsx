@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Avatar, Button, List } from 'antd';
 
 function ProfilePage() {
   const [userData, setUserData] = useState(null);
@@ -8,13 +9,10 @@ function ProfilePage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Kiểm tra token từ localStorage
     const token = localStorage.getItem('token');
     if (!token) {
-      // Nếu không có token, chuyển hướng đến trang đăng nhập
       navigate('/login');
     } else {
-      // Nếu có token, gửi yêu cầu lấy thông tin cá nhân từ backend
       axios.get('http://localhost:5000/api/profile', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -27,7 +25,6 @@ function ProfilePage() {
         console.error('Error fetching user profile:', error);
       });
 
-      // Gửi yêu cầu lấy danh sách truyện của người dùng từ backend
       axios.get('http://localhost:5000/api/profile/userstories', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -48,33 +45,41 @@ function ProfilePage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="bg-white shadow-md rounded px-8 py-6 mb-8">
-        <h2 className="text-2xl font-bold mb-4">Thông tin cá nhân</h2>
+      <div className="bg-white shadow-md rounded px-8 py-6 mb-8 flex items-center">
         {userData && (
-          <div>
-            <p><strong>Username:</strong> {userData.username}</p>
-            {/* Hiển thị thông tin cá nhân khác nếu có */}
-          </div>
+          <>
+            <Avatar size={64} src="../public/avatar.jpg" />
+            <div className="ml-4">
+              <h2 className="text-2xl font-bold">{userData.username}</h2>
+              {/* Hiển thị thông tin cá nhân khác nếu có */}
+            </div>
+          </>
         )}
       </div>
 
       <div className="bg-white shadow-md rounded px-8 py-6 mb-8">
         <h2 className="text-2xl font-bold mb-4">Các truyện đã đăng</h2>
         {userStories.length > 0 ? (
-          <ul>
+          <div className="flex flex-wrap -mx-4">
             {userStories.map(story => (
-              <li key={story._id} className="my-2">
-                <p><strong>Tiêu đề:</strong> {story.title}</p>
-                {/* Hiển thị thông tin truyện khác nếu có */}
-                <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2"
-                  onClick={() => handleAddChapter(story._id)}
-                >
-                  Thêm chapter mới
-                </button>
-              </li>
+              <div key={story._id} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/4 px-4 mb-4">
+                <List.Item>
+                  <List.Item.Meta
+                    avatar={<Avatar src={story.cover} style={{ maxWidth: '200px', maxHeight: '200px', width: 'auto', height: 'auto' }}/>}
+                    title={<span><strong>{story.title}</strong></span>}
+                    description={
+                      <Button
+                        type="primary"
+                        onClick={() => handleAddChapter(story._id)}
+                      >
+                        Thêm chapter mới
+                      </Button>
+                    }
+                  />
+                </List.Item>
+              </div>
             ))}
-          </ul>
+          </div>
         ) : (
           <p>Không có truyện nào được đăng.</p>
         )}

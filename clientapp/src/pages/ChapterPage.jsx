@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Typography, Button, Spin, message } from 'antd';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+
+const { Title } = Typography;
 
 const ChapterPage = () => {
   const { storyId, chapterId } = useParams();
   const [chapter, setChapter] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const navigate = useNavigate(); // Sử dụng hook useNavigate thay cho useHistory
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchChapter = async () => {
@@ -24,7 +28,7 @@ const ChapterPage = () => {
         });
         setChapter(response.data);
       } catch (error) {
-        setError('Error fetching chapter details');
+        message.error('Error fetching chapter details');
       } finally {
         setLoading(false);
       }
@@ -34,37 +38,40 @@ const ChapterPage = () => {
   }, [storyId, chapterId]);
 
   const goToNextChapter = () => {
-    // Điều hướng đến chương kế tiếp
     navigate(`/stories/${storyId}/chapters/${nextChapterId}`);
   };
 
   const goToPreviousChapter = () => {
-    // Điều hướng đến chương trước đó
     navigate(`/stories/${storyId}/chapters/${previousChapterId}`);
   };
 
   if (loading) {
-    return <div className="container mx-auto px-4 py-8">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="container mx-auto px-4 py-8">{error}</div>;
+    return (
+      <div style={{ textAlign: 'center', marginTop: '100px' }}>
+        <Spin size="large" />
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
       {chapter && (
         <div>
-          <h2 className="text-2xl font-bold mb-4">{chapter.title}</h2>
-          <p className="mb-4">{chapter.content}</p>
-          {/* Các nút điều hướng */}
-          <div className="flex justify-between">
-            <button onClick={goToPreviousChapter} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+          <Title level={2} style={{ marginBottom: '20px' }}>{chapter.title}</Title>
+          <div className="quill-container">
+            <ReactQuill
+              value={chapter.content}
+              readOnly={true}
+              theme="snow"
+            />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+            <Button type="primary" onClick={goToPreviousChapter} style={{ marginRight: '10px' }}>
               Chương Trước
-            </button>
-            <button onClick={goToNextChapter} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            </Button>
+            <Button type="primary" onClick={goToNextChapter}>
               Chương Tiếp
-            </button>
+            </Button>
           </div>
         </div>
       )}

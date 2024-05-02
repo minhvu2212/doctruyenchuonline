@@ -38,7 +38,7 @@ router.get('/tags/:id', tagController.getTag);
 router.delete('/tags/:id', verifyToken, tagController.deleteTag);
 router.put('/tags/:id', verifyToken, tagController.updateTag);
 // Story routes
-router.post('/createStory',verifyToken, upload.single('cover'), createStory);
+router.post('/createStory',verifyToken,upload.single('cover'), createStory);
 router.get('/getStories', getStories);
 router.get('/getStory/:storyId',findStoryMiddleware, getStory);
 router.delete('/deleteStory/:id',verifyToken,isStoryOwner, deleteStory);
@@ -70,7 +70,7 @@ router.post('/stories/:storyId/comments', verifyToken, commentController.createC
 router.get('/stories/:storyId/comments', verifyToken, commentController.getCommentsForStory);
 router.delete('/comments/:commentId', verifyToken, commentController.deleteComment);
 
-
+router.get('/isAdmin',verifyToken, adminController.checkAdmin);
 
 
 module.exports = router;

@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Button, Input, Form, Select, Upload, message } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
+
+
+const { Option } = Select;
+const { TextArea } = Input;
 
 const CreateStoryPage = () => {
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    cover: null,
-    categories: [],
-    tags: [],
-  });
-
+  const [form] = Form.useForm();
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [token, setToken] = useState("");
-  const [duplicateTitleError, setDuplicateTitleError] = useState("");
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false); // State để điều khiển hiển thị thông báo thành công
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   useEffect(() => {
     const fetchCategoriesAndTags = async () => {
@@ -56,50 +54,18 @@ const CreateStoryPage = () => {
     }
   };
 
-  const handleChange = async (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-
-    if (name === 'title') {
-      try {
-        const isDuplicate = await checkDuplicateTitle(value);
-        if (isDuplicate) {
-          setDuplicateTitleError("Tiêu đề đã tồn tại, vui lòng chọn một tiêu đề khác.");
-        } else {
-          setDuplicateTitleError("");
-        }
-      } catch (error) {
-        console.error('Error handling title change:', error);
-      }
-    }
-  };
-
-
-  const handleCategoryChange = (e) => {
-    const selectedCategories = Array.from(e.target.selectedOptions, (option) => option.value);
-    setFormData({ ...formData, categories: selectedCategories });
-  };
-
-  const handleTagChange = (e) => {
-    const selectedTags = Array.from(e.target.selectedOptions, (option) => option.value);
-    setFormData({ ...formData, tags: selectedTags });
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setFormData({ ...formData, cover: file });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (values) => {
+    const { title, description, cover, categories, tags } = values;
     const formDataToSend = new FormData();
-    formDataToSend.append('title', formData.title);
-    formDataToSend.append('description', formData.description);
-    formDataToSend.append('cover', formData.cover);
-    formData.categories.forEach((category) => {
+    formDataToSend.append('title', title);
+    formDataToSend.append('description', description);
+    if (cover && cover[0]) {
+      formDataToSend.append('cover', cover[0].originFileObj);
+    }
+    categories.forEach(category => {
       formDataToSend.append('categories', category);
     });
-    formData.tags.forEach((tag) => {
+    tags.forEach(tag => {
       formDataToSend.append('tags', tag);
     });
 
@@ -114,12 +80,18 @@ const CreateStoryPage = () => {
         }
       );
       console.log('New story created:', response.data);
-      setShowSuccessMessage(true); // Hiển thị thông báo thành công
-      // Redirect to the newly created story page or do something else
+      setShowSuccessMessage(true);
     } catch (error) {
       console.error('Error creating story:', error);
-      // Handle error, display error message, etc.
+      message.error('Failed to create story.');
     }
+  };
+
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e && e.fileList;
   };
 
   if (loading) {
@@ -135,7 +107,6 @@ const CreateStoryPage = () => {
       <div className="container mx-auto p-4">
         <h2 className="text-2xl font-bold mb-4">Thêm Truyện mới</h2>
         <div className="text-green-500">Truyện của bạn đã được tạo thành công và đang chờ duyệt!</div>
-        {/* Add a button or a link to go back to the homepage */}
       </div>
     );
   }
@@ -143,75 +114,72 @@ const CreateStoryPage = () => {
   return (
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4">Thêm Truyện mới</h2>
-      <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
-        <div>
-          <label className="block">Tên Truyện:</label>
-          <input
-            type="text"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            className="border border-gray-400 rounded-md py-2 px-4 w-full"
-          />
-          {duplicateTitleError && <div className="text-red-500">{duplicateTitleError}</div>}
-        </div>
-        <div>
-          <label className="block">Mô Tả:</label>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            className="border border-gray-400 rounded-md py-2 px-4 w-full"
-          />
-        </div>
-        <div>
-          <label className="block">Bìa:</label>
-          <input
-            type="file"
-            name="cover"
-            onChange={handleFileChange}
-            className="border border-gray-400 rounded-md py-2 px-4 w-full"
-          />
-        </div>
-        <div>
-          <label className="block">Thể loại:</label>
-          <select
-            name="categories"
-            value={formData.categories}
-            onChange={handleCategoryChange}
-            multiple
-            className="border border-gray-400 rounded-md py-2 px-4 w-full"
-          >
-            {categories.map((category) => (
-              <option key={category._id} value={category._id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block">Tags:</label>
-          <select
-            name="tags"
-            value={formData.tags}
-            onChange={handleTagChange}
-            multiple
-            className="border border-gray-400 rounded-md py-2 px-4 w-full"
-          >
-            {tags.map((tag) => (
-              <option key={tag._id} value={tag._id}>
-                {tag.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button
-          type="submit"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md"
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+        encType="multipart/form-data"
+      >
+        <Form.Item
+          label="Tên Truyện:"
+          name="title"
+          rules={[{ required: true, message: 'Please input the title of the story!' }]}
         >
-          Tạo Truyện
-        </button>
-      </form>
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label="Mô Tả:"
+          name="description"
+        >
+          <TextArea rows={4} />
+        </Form.Item>
+        <Form.Item
+          label="Bìa:"
+          name="cover"
+          valuePropName="fileList"
+          getValueFromEvent={normFile}
+          extra="Drag and drop an image file for the cover"
+        >
+          <Upload name="cover" listType="picture" beforeUpload={() => false}>
+            <Button icon={<UploadOutlined />}>Click to upload</Button>
+          </Upload>
+        </Form.Item>
+        <Form.Item
+          label="Thể loại:"
+          name="categories"
+        >
+          <Select
+            mode="multiple"
+            placeholder="Select categories"
+          >
+            {categories.map(category => (
+              <Option key={category._id} value={category._id}>
+                {category.name}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item
+          label="Tags:"
+          name="tags"
+        >
+          <Select
+            mode="multiple"
+            placeholder="Select tags"
+          >
+            {tags.map(tag => (
+              <Option key={tag._id} value={tag._id}>
+                {tag.name}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit">
+            Tạo Truyện
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
   );
 };

@@ -1,0 +1,18 @@
+.ql-editor {
+    font-size: 16px; /* Đặt kích thước phông chữ tại đây */
+  }
+  .quill-container {
+    margin-bottom: 20px;
+  }
+  
+  .navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
