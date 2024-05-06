@@ -27,7 +27,7 @@ function App() {
       <Route path="/story/create" element={<CreateStoryPage />} />
       <Route path="/story/chapter/add/:storyId" element={<AddChapterPage />} />
       <Route path="/stories/:storyId" element={<StoryPage />} />
-      <Route path="/chapter/:chapterId" element={<ChapterPage />} />
+      <Route path="/stories/:storyId/chapter/:chapterId" element={<ChapterPage />}/>
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/login" element={<LoginPage />} />
     </Routes>

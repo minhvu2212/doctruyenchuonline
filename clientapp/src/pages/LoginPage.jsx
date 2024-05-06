@@ -24,7 +24,7 @@ const LoginPage = () => {
       setToken(receivedToken);
       localStorage.setItem('token', receivedToken);
       message.success(response.data.message);
-      navigate('/');
+      window.location.href='/'
     } catch (error) {
       if (error.response && error.response.data) {
         setError(error.response.data.message);

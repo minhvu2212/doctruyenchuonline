@@ -42,7 +42,7 @@ exports.login = async (req, res) => {
     }
 
     // Tạo token với thông tin người dùng và isAdmin
-    const token = jwt.sign({ _id: user._id, isAdmin: user.isAdmin }, config.jwtSecret, { expiresIn: '24h' });
+    const token = jwt.sign({ _id: user._id, isAdmin: user.isAdmin }, config.jwtSecret, { expiresIn: '72h' });
     console.log('User logged in successfully:', user);
 
     res.status(200).json({ token });

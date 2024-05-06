@@ -1,12 +1,12 @@
 const chapterModel = require("../models/Chapter");
 
-const chapterExists = async (req, res, next) => {
+const chapterMiddleware = async (req, res, next) => {
     const chapterId = req.params.chapterId;
     console.log("Chapter ID:", chapterId); // Kiểm tra giá trị của chapterId
     try {
         const chapter = await chapterModel.findById(chapterId);
         if (!chapter) {
-            return res.status(404).json({ message: "Chapter not found" });
+            return res.status(404).json({ message: "Chapter not found1" });
         }
         req.chapter = chapter;
         next();
@@ -16,6 +16,6 @@ const chapterExists = async (req, res, next) => {
 };
 
 
-module.exports = {
-    chapterExists,
-};
+module.exports = 
+    chapterMiddleware ;
+

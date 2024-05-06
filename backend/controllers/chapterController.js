@@ -18,12 +18,13 @@ const createChapter = async(req, res) => {
 
 const getStoryChapters = async(req, res) => {
     try {
-        const chapters = await chapterModel.find({ story: req.story._id });
+        const chapters = await chapterModel.find({ story: req.story._id }).sort({ order: 1 }); // Sắp xếp theo trường order
         return res.status(200).json(chapters);
     } catch (err) {
         return res.status(500).json(err);
     }
 };
+
 
 const getChapter = async (req, res) => {
     const chapter = req.chapter;

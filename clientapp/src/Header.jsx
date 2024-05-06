@@ -83,7 +83,7 @@ function Header() {
   );
 
   return (
-    <AntHeader className="bg-gradient-to-t from-black to-purple-700 text-white p-4">
+    <AntHeader className="bg-gradient-to-t from-rgba(25, 38, 62, 0.9960784314) to-purple-700 text-white p-4    ">
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="text-lg text-white">Vdocx - Nền tảng Truyện Tranh Online Demo</Link>
         <div className="flex items-center">

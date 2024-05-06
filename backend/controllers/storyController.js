@@ -1,7 +1,7 @@
 const Story = require("../models/Story");
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' }); // Thư mục lưu trữ tạm thời cho các file tải lên
-
+const Category = require('../models/Category');
 const createStory = async (req, res) => {
     try {
         console.log("Creating new story...");
@@ -59,10 +59,20 @@ const getStories = async (req, res) => {
             stories = await Story.find();
         }
 
-        // Thêm đường dẫn của ảnh bìa vào mỗi câu chuyện
-        const storiesWithCoverURL = stories.map(story => {
+        // Lấy tên của các danh mục cho mỗi câu chuyện
+        const storiesWithCategories = await Promise.all(stories.map(async story => {
+            const categories = await Category.find({ _id: { $in: story.categories } });
+            const categoryNames = categories.map(category => category.name);
             return {
                 ...story.toJSON(),
+                categories: categoryNames
+            };
+        }));
+
+        // Thêm đường dẫn của ảnh bìa vào mỗi câu chuyện
+        const storiesWithCoverURL = storiesWithCategories.map(story => {
+            return {
+                ...story,
                 cover: `${req.protocol}://${req.get('host')}/${story.cover}`
             };
         });
@@ -72,7 +82,6 @@ const getStories = async (req, res) => {
         return res.status(500).json(err);
     }
 };
-
 
 
 
@@ -190,6 +199,11 @@ const getStory = async (req, res) => {
             },
         ]);
 
+        // Kiểm tra nếu câu chuyện có ảnh bìa thì thêm đường dẫn của ảnh bìa vào
+        if (story[0].cover) {
+            story[0].cover = `${req.protocol}://${req.get('host')}/${story[0].cover}`;
+        }
+
         // Log thông tin câu chuyện được trả về
         console.log("Fetched story:", story);
 
@@ -201,6 +215,7 @@ const getStory = async (req, res) => {
         return res.status(500).json(err);
     }
 };
+
 
 
 const deleteStory = async(req, res) => {

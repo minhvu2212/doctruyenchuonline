@@ -41,18 +41,35 @@ const StoryPage = () => {
     <div className="max-w-3xl mx-auto px-4 py-8">
       {story && (
         <>
-          <h1 className="text-3xl font-bold">{story.title}</h1>
-          <p className="text-gray-600 mt-2">Tác giả: {story.author && story.author.username}</p>
-          <p className="mt-4">Giới thiệu: {story.description}</p>
+          <div className="flex">
+            <img src={story.cover} alt="Story Cover" className="w-1/4 mr-4" />
+
+            <div>
+              <h1 className="text-3xl font-bold">{story.title}</h1>
+              <p className="text-gray-600 mt-2">Tác giả: {story.author && story.author.username}</p>
+              <p className="mt-4">Giới thiệu: {story.description}</p>
+            </div>
+          </div>
 
           <h2 className="text-2xl font-bold mt-8">Danh sách chương</h2>
-          <ul className="mt-4">
-            {chapters.map((chapter, index) => (
-              <li key={chapter._id} className="mb-2">
-                <a href={`/chapter/${chapter._id}`} className="text-blue-500 hover:text-blue-700">{`Chap ${index + 1}: ${chapter.title}`}</a>
-              </li>
-            ))}
-          </ul>
+          <table className="mt-4">
+            <thead>
+              <tr>
+                <th>Chương</th>
+                <th>Tiêu đề</th>
+              </tr>
+            </thead>
+            <tbody>
+              {chapters.map((chapter, index) => (
+                <tr key={chapter._id}>
+                  <td>{index + 1}</td>
+                  <td>
+                    <a href={`/stories/${story._id}/chapter/${chapter._id}`} className="text-blue-500 hover:text-blue-700">{chapter.title}</a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </>
       )}
     </div>

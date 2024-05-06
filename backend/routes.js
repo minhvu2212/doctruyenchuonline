@@ -48,7 +48,7 @@ router.put('/updateStory/:id',verifyToken,isStoryOwner, updateStory);
 //Chapter
 router.post('/chapters/:storyId', verifyToken,findStoryMiddleware, chapterController.createChapter);
 router.get('/chapters/story/:storyId',findStoryMiddleware, chapterController.getStoryChapters);
-router.get('/chapters/:chapterId',verifyToken, chapterMiddleware.chapterExists, chapterController.getChapter);
+router.get('/chapters/:chapterId',verifyToken, chapterMiddleware , chapterController.getChapter);
 router.delete('/chapters/:chapterId', verifyToken, chapterController.deleteChapter);
 router.put('/chapters/:chapterId', verifyToken, chapterController.updateChapter);
 
@@ -66,8 +66,8 @@ router.post('/admin/approveStory', verifyToken, isAdmin, adminController.approve
 router.post('/admin/createAdmin', verifyToken, isAdmin, adminController.createAdmin);
 router.post('/check-content',verifyToken, isAdmin, adminController.checkStoryContent);
 // Comment routes
-router.post('/stories/:storyId/comments', verifyToken, commentController.createComment);
-router.get('/stories/:storyId/comments', verifyToken, commentController.getCommentsForStory);
+router.post('/stories/:storyId/chapters/:chapterId/comments', verifyToken,findStoryMiddleware,chapterMiddleware, commentController.createComment);
+router.get('/stories/:storyId/chapters/:chapterId/comments', verifyToken,findStoryMiddleware,chapterMiddleware, commentController.getCommentsForStory);
 router.delete('/comments/:commentId', verifyToken, commentController.deleteComment);
 
 router.get('/isAdmin',verifyToken, adminController.checkAdmin);
