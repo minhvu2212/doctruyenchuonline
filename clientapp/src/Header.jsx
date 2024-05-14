@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Layout, Button, Menu, Dropdown } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
+import { Layout, Button, Menu, Dropdown, Input } from 'antd';
 import axios from 'axios';
 
 const { Header: AntHeader } = Layout;
+const { Search } = Input;
 
 function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -53,8 +55,7 @@ function Header() {
       {isLoggedIn && (
         <>
           <Menu.Item key="profile">
-          <Link to="/profile">Profile & Quản Lý Truyện</Link>
-
+            <Link to="/profile">Profile & Quản Lý Truyện</Link>
           </Menu.Item>
           <Menu.Item key="create-story">
             <Link to="/story/create">Thêm Truyện mới</Link>
@@ -82,11 +83,20 @@ function Header() {
     </Menu>
   );
 
+  const onSearch = (value) => {
+    navigate(`/search?query=${value}`);
+  };
+
   return (
-    <AntHeader className="bg-gradient-to-t from-rgba(25, 38, 62, 0.9960784314) to-purple-700 text-white p-4    ">
+    <AntHeader className="bg-gradient-to-t from-rgba(25, 38, 62, 0.9960784314) to-purple-700 text-white p-4">
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="text-lg text-white">Vdocx - Nền tảng Truyện Tranh Online Demo</Link>
         <div className="flex items-center">
+          <Search
+            placeholder="Tìm tên truyện"
+            onSearch={onSearch}
+            style={{ width: 200, marginRight: '1rem' }}
+          />
           <Dropdown overlay={menu} placement="bottomRight" arrow>
             <Button type="text" className="text-white">Menu</Button>
           </Dropdown>

@@ -127,31 +127,42 @@ const getChapter = async (req, res) => {
 
 
 
-const deleteChapter = async(req, res) => {
+const deleteChapter = async (req, res) => {
     const chapter = req.chapter;
     try {
+        console.log("Deleting chapter:", chapter); // Log thông tin về chương trước khi xóa
         const deletedChapter = await chapterModel.findByIdAndDelete(chapter._id);
+        console.log("Deleted chapter:", deletedChapter); // Log thông tin về chương sau khi xóa
         return res.status(200).json(deletedChapter);
     } catch (err) {
+        console.error("Error deleting chapter:", err); // Log lỗi nếu có
         return res.status(500).json(err);
     }
 };
 
-const updateChapter = async(req, res) => {
+
+const updateChapter = async (req, res) => {
     const chapter = req.chapter;
     try {
+        console.log('Chapter:', chapter);
+        if (!chapter || !chapter._id) {
+            throw new Error('Chapter or chapter ID is undefined.');
+        }
+        
         const updatedChapter = await chapterModel.findByIdAndUpdate(
             chapter._id,
-            req.body, {
-                new: true,
-            }
+            req.body,
+            { new: true }
         );
+        console.log('Chapter updated:', updatedChapter);
         return res.status(200).json(updatedChapter);
     } catch (err) {
+        console.error('Error updating chapter:', err);
         return res.status(500).json(err);
     }
 };
-// Approve a chapter
+
+
 // Duyệt một chương
 const approveChapter = async (req, res) => {
     const chapterId = req.params.chapterId;

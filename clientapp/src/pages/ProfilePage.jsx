@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { Avatar, Button, Card, Empty, Row, Col, Spin, Typography } from 'antd';
+import { Avatar, Button, Card, Empty, Row, Col, Spin, Typography, Space } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
-import { Link } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 
@@ -75,6 +74,10 @@ function ProfilePage() {
     navigate(`/story/chapter/add/${storyId}`);
   };
 
+  const handleManageChapters = (storyId) => {
+    navigate(`/stories/${storyId}/manage-chapters`);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center mb-8">
@@ -105,13 +108,21 @@ function ProfilePage() {
                       hoverable
                       cover={<img alt={story.title} src={story.cover} style={{ maxHeight: '200px', objectFit: 'cover' }} />}
                       actions={[
-                        <Button
-                          type="primary"
-                          icon={<EditOutlined />}
-                          onClick={() => handleAddChapter(story._id)}
-                        >
-                          Thêm chapter mới
-                        </Button>
+                        <Space direction="vertical">
+                          <Button
+                            type="primary"
+                            icon={<EditOutlined />}
+                            onClick={() => handleAddChapter(story._id)}
+                          >
+                            Thêm chapter mới
+                          </Button>
+                          <Button
+                            type="primary"
+                            onClick={() => handleManageChapters(story._id)}
+                          >
+                            Quản lí chương
+                          </Button>
+                        </Space>
                       ]}
                     >
                       <Link to={`/stories/${story._id}`}>

@@ -49,8 +49,8 @@ router.put('/updateStory/:id',verifyToken,isStoryOwner, updateStory);
 router.post('/chapters/:storyId', verifyToken,findStoryMiddleware, chapterController.createChapter);
 router.get('/chapters/story/:storyId',findStoryMiddleware, chapterController.getStoryChapters);
 router.get('/chapters/:chapterId',verifyToken, chapterMiddleware , chapterController.getChapter);
-router.delete('/chapters/:chapterId', verifyToken, chapterController.deleteChapter);
-router.put('/chapters/:chapterId', verifyToken, chapterController.updateChapter);
+router.delete('/chapters/:chapterId', verifyToken,chapterMiddleware , chapterController.deleteChapter);
+router.put('/chapters/:chapterId', verifyToken,chapterMiddleware , chapterController.updateChapter);
 
 // Read
 router.post('/chapters/:chapterId/read', verifyToken, readController.readChapter);

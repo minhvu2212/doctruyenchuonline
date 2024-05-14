@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Select, Input, Button, Typography, Form, message } from 'antd';
 import ReactQuill from 'react-quill';
 
@@ -10,63 +10,42 @@ const { Option } = Select;
 const { Title } = Typography;
 
 const AddChapterPage = () => {
+  const { storyId } = useParams();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const [userStories, setUserStories] = useState([]);
-  const [selectedStory, setSelectedStory] = useState('');
-  const [nextChapterOrder, setNextChapterOrder] = useState(1);
+  const [chapterCounts, setChapterCounts] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUserStories = async () => {
+    const fetchChapterDetails = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/profile/userstories', {
+        const response = await axios.get(`http://localhost:5000/api/chapters/story/${storyId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        setUserStories(response.data);
+        const nextOrder = response.data.length + 1;
+        setChapterCounts(nextOrder);
       } catch (error) {
-        console.error('Error fetching user stories:', error);
+        console.error('Error fetching chapter details:', error);
       }
     };
 
-    fetchUserStories();
-  }, []);
-
-  const fetchChapterDetails = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:5000/api/chapters/story/${selectedStory}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const nextOrder = response.data.length + 1;
-      setNextChapterOrder(nextOrder);
-    } catch (error) {
-      console.error('Error fetching chapter details:', error);
-    }
-  };
-
-  useEffect(() => {
-    if (selectedStory) {
-      fetchChapterDetails();
-    }
-  }, [selectedStory]);
+    fetchChapterDetails();
+  }, [storyId]);
 
   const handleSubmit = async () => {
     try {
       setLoading(true);
       const values = await form.validateFields();
       const token = localStorage.getItem('token');
-      await axios.post(`http://localhost:5000/api/chapters/${selectedStory}`, {
+      await axios.post(`http://localhost:5000/api/chapters/${storyId}`, {
         title: values.title,
         content: values.content,
-        order: nextChapterOrder,
+        order: chapterCounts,
       }, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -74,7 +53,6 @@ const AddChapterPage = () => {
       });
       message.success('Chapter đã được thêm thành công!');
       setSuccess(true);
-      fetchChapterDetails();
     } catch (error) {
       setError(error.response.data.message);
     } finally {
@@ -95,12 +73,8 @@ const AddChapterPage = () => {
         <div className="mb-4 text-green-500 font-semibold">Chapter đã được thêm thành công!</div>
       ) : (
         <Form form={form} onFinish={handleSubmit}>
-          <Form.Item name="story" label="Chọn Truyện" rules={[{ required: true, message: 'Vui lòng chọn một truyện' }]}>
-            <Select placeholder="Chọn một truyện" onChange={(value) => setSelectedStory(value)}>
-              {userStories.map(story => (
-                <Option key={story._id} value={story._id}>{story.title}</Option>
-              ))}
-            </Select>
+          <Form.Item name="story" label="Chọn Truyện" initialValue={storyId} hidden>
+            <Input />
           </Form.Item>
           <Form.Item name="title" label="Tiêu đề Chap" rules={[{ required: true, message: 'Vui lòng nhập tiêu đề chap' }]}>
             <Input />
