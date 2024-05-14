@@ -22,7 +22,8 @@ const StoryPage = () => {
     const fetchChapters = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/chapters/story/${storyId}`);
-        setChapters(response.data);
+        const approvedChapters = response.data.filter(chapter => chapter.approved);
+        setChapters(approvedChapters);
       } catch (error) {
         setError(error.response.data.message);
       } finally {
@@ -43,7 +44,6 @@ const StoryPage = () => {
         <>
           <div className="flex">
             <img src={story.cover} alt="Story Cover" className="w-1/4 mr-4" />
-
             <div>
               <h1 className="text-3xl font-bold">{story.title}</h1>
               <p className="text-gray-600 mt-2">Tác giả: {story.author && story.author.username}</p>
@@ -64,7 +64,9 @@ const StoryPage = () => {
                 <tr key={chapter._id}>
                   <td>{index + 1}</td>
                   <td>
-                    <a href={`/stories/${story._id}/chapter/${chapter._id}`} className="text-blue-500 hover:text-blue-700">{chapter.title}</a>
+                    <a href={`/stories/${story._id}/chapter/${chapter._id}`} className="text-blue-500 hover:text-blue-700">
+                      {chapter.title}
+                    </a>
                   </td>
                 </tr>
               ))}

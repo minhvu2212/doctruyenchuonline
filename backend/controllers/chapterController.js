@@ -1,4 +1,5 @@
 const chapterModel = require("../models/Chapter");
+const Story = require("../models/Story");
 const readModels = require("../models/Read");
 const mongoose = require("mongoose");
 const createChapter = async(req, res) => {
@@ -150,7 +151,75 @@ const updateChapter = async(req, res) => {
         return res.status(500).json(err);
     }
 };
+// Approve a chapter
+// Duyệt một chương
+const approveChapter = async (req, res) => {
+    const chapterId = req.params.chapterId;
+    try {
+        const updatedChapter = await chapterModel.findByIdAndUpdate(
+            chapterId,
+            { approved: true },
+            { new: true }
+        );
+        return res.status(200).json(updatedChapter);
+    } catch (err) {
+        return res.status(500).json(err);
+    }
+};
+const getChapters = async (req, res) => {
+    const { approved } = req.query;
+    console.log('Received query parameter approved:', approved);  // Log query parameter
 
+    try {
+        const approvedStatus = approved === 'false' ? false : true;
+        console.log('Querying chapters with approved status:', approvedStatus);  // Log the approved status used for querying
+
+        // Thực hiện join với collection Story để lấy thông tin về tên của story
+        const chapters = await chapterModel.aggregate([
+            {
+                $match: { approved: approvedStatus }
+            },
+            {
+                $lookup: {
+                    from: "Story",
+                    localField: "story",
+                    foreignField: "_id",
+                    as: "story"
+                }
+            },
+            {
+                $unwind: "$story"
+            },
+            {
+                $project: {
+                    _id: 1,
+                    title: 1,
+                    content: 1,
+                    order: 1,
+                    readTime: 1,
+                    approved: 1,
+                    "story.title": 1 // Chọn chỉ tên của story
+                }
+            }
+        ]);
+
+        console.log('Found chapters:', chapters);  // Log the chapters found
+
+        res.status(200).json(chapters);
+    } catch (err) {
+        console.error('Error fetching chapters:', err);  // Log any error encountered
+        res.status(500).json(err);
+    }
+};
+
+
+module.exports.getChapters = getChapters;
+
+
+module.exports.getChapters = getChapters;
+
+
+module.exports.approveChapter = approveChapter;
 module.exports.getChapter = getChapter;
 module.exports.getStoryChapters = getStoryChapters;
 module.exports.createChapter = createChapter;

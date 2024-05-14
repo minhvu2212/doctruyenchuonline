@@ -10,6 +10,10 @@ const ChapterSchema = new mongoose.Schema({
     },
     order: { type: Number },
     readTime: { type: Number, default: 0 },
+    approved: {
+        type: Boolean,
+        default: false, 
+      },
 }, { timestamps: true });
 ChapterSchema.pre("validate", function(next) {
     this.calculateReadTime();

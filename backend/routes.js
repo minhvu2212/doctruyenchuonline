@@ -60,11 +60,13 @@ router.post('/stories/:storyId/bookmark', verifyToken, bookmarkController.bookma
 
 // Hủy đánh dấu một truyện
 router.delete('/stories/:storyId/bookmark', verifyToken, bookmarkController.unbookmarkStory);
+router.get('/getChapters', verifyToken, isAdmin, chapterController.getChapters);
 
 // Admin routes
 router.post('/admin/approveStory', verifyToken, isAdmin, adminController.approveStory);
 router.post('/admin/createAdmin', verifyToken, isAdmin, adminController.createAdmin);
 router.post('/check-content',verifyToken, isAdmin, adminController.checkStoryContent);
+router.post('/chapters/:chapterId/approve',verifyToken,isAdmin, chapterController.approveChapter);
 // Comment routes
 router.post('/stories/:storyId/chapters/:chapterId/comments', verifyToken,findStoryMiddleware,chapterMiddleware, commentController.createComment);
 router.get('/stories/:storyId/chapters/:chapterId/comments', verifyToken,findStoryMiddleware,chapterMiddleware, commentController.getCommentsForStory);

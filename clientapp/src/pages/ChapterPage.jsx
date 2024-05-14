@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Typography, Button, Spin, message, Dropdown, Menu, Input } from 'antd';
-import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
 const { Title } = Typography;
@@ -42,9 +41,13 @@ const ChapterPage = () => {
             }
           })
         ]);
+
         setChapter(chapterResponse.data);
-        const sortedChapters = chaptersResponse.data.sort((a, b) => a.order - b.order);
+
+        const approvedChapters = chaptersResponse.data.filter(chapter => chapter.approved);
+        const sortedChapters = approvedChapters.sort((a, b) => a.order - b.order);
         setAllChapters(sortedChapters);
+
         setComments(commentsResponse.data);
       } catch (error) {
         message.error('Error fetching data');

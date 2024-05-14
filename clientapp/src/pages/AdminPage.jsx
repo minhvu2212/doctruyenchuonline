@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Button, Modal, Spin, Typography } from 'antd';
+import { Button, Modal, Spin, Typography, Row, Col } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 
 const { confirm } = Modal;
@@ -8,11 +8,14 @@ const { Title, Text } = Typography;
 
 const AdminPage = () => {
   const [pendingStories, setPendingStories] = useState([]);
+  const [pendingChapters, setPendingChapters] = useState([]);
   const [selectedStory, setSelectedStory] = useState(null);
+  const [selectedChapter, setSelectedChapter] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchPendingStories();
+    fetchPendingChapters();
   }, []);
 
   const fetchPendingStories = async () => {
@@ -32,6 +35,23 @@ const AdminPage = () => {
     }
   };
 
+  const fetchPendingChapters = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:5000/api/getChapters?approved=false', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      setPendingChapters(response.data);
+    } catch (error) {
+      console.error('Error fetching pending chapters:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const approveStory = async (id) => {
     try {
       const token = localStorage.getItem('token');
@@ -43,6 +63,20 @@ const AdminPage = () => {
       fetchPendingStories();
     } catch (error) {
       console.error('Error approving story:', error);
+    }
+  };
+
+  const approveChapter = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(`http://localhost:5000/api/chapters/${id}/approve`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      fetchPendingChapters();
+    } catch (error) {
+      console.error('Error approving chapter:', error);
     }
   };
 
@@ -60,8 +94,26 @@ const AdminPage = () => {
     }
   };
 
+  const viewChapterDetails = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`http://localhost:5000/api/getChapter/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      setSelectedChapter(response.data);
+    } catch (error) {
+      console.error('Error fetching chapter details:', error);
+    }
+  };
+
   const closeStoryDetails = () => {
     setSelectedStory(null);
+  };
+
+  const closeChapterDetails = () => {
+    setSelectedChapter(null);
   };
 
   const censorSensitiveWords = (text) => {
@@ -107,9 +159,9 @@ const AdminPage = () => {
         });
     });
     return { censoredText, count };
-};
+  };
 
-  const handleApproveConfirm = (id) => {
+  const handleApproveStoryConfirm = (id) => {
     confirm({
       title: 'Xác nhận duyệt truyện',
       icon: <ExclamationCircleOutlined />,
@@ -123,53 +175,107 @@ const AdminPage = () => {
     });
   };
 
-  return (
-    <div className="mx-auto max-w-2xl p-4">
-      <Title level={2}>Truyện Cần Duyệt</Title>
-      <Spin spinning={loading}>
-        {pendingStories.map(story => (
-          story.approved === false && (
-            <div key={story._id} className="border border-gray-200 p-4 rounded mb-4">
-              <div className="flex items-center mb-2">
-                <img src={story.cover} alt="Cover" style={{ width: 100, height: 'auto', marginRight: 16 }} />
-                <div>
-                  <Title level={4} className="mb-2">Tên: {story.title}</Title>
-                  <Text className="text-gray-700 block mb-2">Mô tả: {censorSensitiveWords(story.description).censoredText}</Text>
-                  <Text type="danger">Từ nhạy cảm: {censorSensitiveWords(story.description).count}</Text>
-                </div>
-              </div>
-              <div className="flex items-center">
-                <Button type="primary" className="mr-2" onClick={() => handleApproveConfirm(story._id)}>Duyệt</Button>
-                <Button onClick={() => viewStoryDetails(story._id)}>Xem chi tiết</Button>
-              </div>
-            </div>
-          )
-        ))}
-      </Spin>
+  const handleApproveChapterConfirm = (id) => {
+    confirm({
+      title: 'Xác nhận duyệt chương',
+      icon: <ExclamationCircleOutlined />,
+      content: 'Bạn có chắc chắn muốn duyệt chương này?',
+      onOk() {
+        approveChapter(id);
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
+  };
 
-      {selectedStory && (
-        <Modal
-          visible={!!selectedStory}
-          onCancel={closeStoryDetails}
-          footer={null}
-          destroyOnClose
-        >
-          <Title level={3} className="mb-4">Chi tiết Truyện</Title>
-          <div>
-            <p><strong>Tên:</strong> <span dangerouslySetInnerHTML={{ __html: censorSensitiveWords(selectedStory.title).censoredText }}></span></p>
-            <p><strong>Người đăng:</strong> {selectedStory.author.username}</p>
-            <p><strong>Mô tả:</strong> <span dangerouslySetInnerHTML={{ __html: censorSensitiveWords(selectedStory.description).censoredText }}></span></p>
-            <Text type="danger">Từ nhạy cảm: {censorSensitiveWords(selectedStory.description).count}</Text>
-          </div>
-          <div className="mt-4">
-            <Button type="primary" onClick={() => approveStory(selectedStory._id)}>Duyệt</Button>
-          </div>
-        </Modal>
-      )}
+  return (
+    <div className="mx-auto max-w-6xl p-4">
+      <Row gutter={16}>
+        <Col span={12}>
+          <Title level={2}>Truyện Cần Duyệt</Title>
+          <Spin spinning={loading}>
+            {pendingStories.map(story => (
+              story.approved === false && (
+                <div key={story._id} className="border border-gray-200 p-4 rounded mb-4">
+                  <div className="flex items-center mb-2">
+                    <img src={story.cover} alt="Cover" style={{ width: 100, height: 'auto', marginRight: 16 }} />
+                    <div>
+                      <Title level={4} className="mb-2">Tên: {story.title}</Title>
+                      <Text className="text-gray-700 block mb-2">Mô tả: <span dangerouslySetInnerHTML={{ __html: censorSensitiveWords(story.description).censoredText }}></span></Text>
+                      <Text type="danger">Từ nhạy cảm: {censorSensitiveWords(story.description).count}</Text>
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <Button type="primary" className="mr-2" onClick={() => handleApproveStoryConfirm(story._id)}>Duyệt</Button>
+                    <Button onClick={() => viewStoryDetails(story._id)}>Xem chi tiết</Button>
+                  </div>
+                </div>
+              )
+            ))}
+          </Spin>
+
+          {selectedStory && (
+            <Modal
+              visible={!!selectedStory}
+              onCancel={closeStoryDetails}
+              footer={null}
+              destroyOnClose
+            >
+              <Title level={3} className="mb-4">Chi tiết Truyện</Title>
+              <div>
+                <p><strong>Tên:</strong> <span dangerouslySetInnerHTML={{ __html: censorSensitiveWords(selectedStory.title).censoredText }}></span></p>
+                <p><strong>Người đăng:</strong> {selectedStory.author.username}</p>
+                <p><strong>Mô tả:</strong> <span dangerouslySetInnerHTML={{ __html: censorSensitiveWords(selectedStory.description).censoredText }}></span></p>
+                <Text type="danger">Từ nhạy cảm: {censorSensitiveWords(selectedStory.description).count}</Text>
+              </div>
+              <div className="mt-4">
+                <Button type="primary" onClick={() => approveStory(selectedStory._id)}>Duyệt</Button>
+              </div>
+            </Modal>
+          )}
+        </Col>
+
+        <Col span={12}>
+          <Title level={2}>Chương Cần Duyệt</Title>
+          <Spin spinning={loading}>
+            {pendingChapters.map(chapter => (
+              chapter.approved === false && (
+                <div key={chapter._id} className="border border-gray-200 p-4 rounded mb-4">
+                  <Title level={4} className="mb-2">Tên chương: {chapter.title}</Title>
+                  <Text className="text-gray-700 block mb-2">Nội dung: <span dangerouslySetInnerHTML={{ __html: censorSensitiveWords(chapter.content).censoredText }}></span></Text>
+                  <Text type="danger">Từ nhạy cảm: {censorSensitiveWords(chapter.content).count}</Text>
+                  <div className="flex items-center mt-2">
+                    <Button type="primary" className="mr-2" onClick={() => handleApproveChapterConfirm(chapter._id)}>Duyệt</Button>
+                    <Button onClick={() => viewChapterDetails(chapter._id)}>Xem chi tiết</Button>
+                  </div>
+                </div>
+              )
+            ))}
+          </Spin>
+
+          {selectedChapter && (
+            <Modal
+              visible={!!selectedChapter}
+              onCancel={closeChapterDetails}
+              footer={null}
+              destroyOnClose
+            >
+              <Title level={3} className="mb-4">Chi tiết Chương</Title>
+              <div>
+                <p><strong>Tên chương:</strong> <span dangerouslySetInnerHTML={{ __html: censorSensitiveWords(selectedChapter.title).censoredText }}></span></p>
+                <p><strong>Nội dung:</strong> <span dangerouslySetInnerHTML={{ __html: censorSensitiveWords(selectedChapter.content).censoredText }}></span></p>
+                <Text type="danger">Từ nhạy cảm: {censorSensitiveWords(selectedChapter.content).count}</Text>
+              </div>
+              <div className="mt-4">
+                <Button type="primary" onClick={() => approveChapter(selectedChapter._id)}>Duyệt</Button>
+              </div>
+            </Modal>
+          )}
+        </Col>
+      </Row>
     </div>
   );
-
-
 };
 
 export default AdminPage;
