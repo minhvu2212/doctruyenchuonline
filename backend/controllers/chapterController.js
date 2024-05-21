@@ -17,31 +17,50 @@ const createChapter = async(req, res) => {
     }
 };
 
-const getStoryChapters = async(req, res) => {
+const getStoryChapters = async (req, res) => {
     try {
+        // Lấy thông tin của câu chuyện và các chương
+        const story = await Story.findById(req.story._id).select('title');
         const chapters = await chapterModel.find({ story: req.story._id }).sort({ order: 1 }); // Sắp xếp theo trường order
-        return res.status(200).json(chapters);
+        
+        // Kiểm tra xem câu chuyện có tồn tại không
+        if (!story) {
+            return res.status(404).json({ message: 'Story not found' });
+        }
+
+        // Trả về thông tin câu chuyện và các chương
+        return res.status(200).json({
+            storyTitle: story.title,
+            chapters: chapters
+        });
     } catch (err) {
+        console.error('Error in getStoryChapters:', err); // Log để kiểm tra lỗi
         return res.status(500).json(err);
     }
 };
 
 
+
 const getChapter = async (req, res) => {
     const chapter = req.chapter;
+    console.log('Request chapter:', chapter); // Log giá trị của chapter
+
     try {
         const readExist = await readModels.findOne({
             chapter: chapter._id,
             reader: req.verifiedUser._id,
         });
         console.log('readExist:', readExist); // Log để kiểm tra giá trị của readExist
+
         if (!readExist) {
             const newRead = new readModels({
                 chapter: chapter._id,
                 reader: req.verifiedUser._id,
             });
             await newRead.save();
+            console.log('New read saved:', newRead); // Log sau khi lưu newRead
         }
+
         const chap = await chapterModel.aggregate([
             { $match: { _id: req.chapter._id } },
             {
@@ -68,62 +87,62 @@ const getChapter = async (req, res) => {
                     as: "comments",
                 },
             },
-            ...(req.verifiedUser ?
-                [{
-                        $lookup: {
-                            from: "Vote",
-                            let: {
-                                chapterId: "$_id",
-                            },
-                            pipeline: [{
+            ...(req.verifiedUser ? [
+                {
+                    $lookup: {
+                        from: "Vote",
+                        let: { chapterId: "$_id" },
+                        pipeline: [
+                            {
                                 $match: {
                                     $expr: {
-                                        $and: {
-                                            $eq: ["$$chapterId", "$chapter"],
-                                            $eq: [
-                                                "$voter",
-                                                new mongoose.Types.ObjectId(req.verifiedUser._id),
-                                            ],
-                                        },
+                                        $and: [
+                                            { $eq: ["$$chapterId", "$chapter"] },
+                                            { $eq: ["$voter", new mongoose.Types.ObjectId(req.verifiedUser._id)] },
+                                        ],
                                     },
                                 },
-                            }, ],
-                            as: "voters",
-                        },
+                            },
+                        ],
+                        as: "voters",
                     },
-                    {
-                        $addFields: {
-                            voters: { $size: "$voters" },
-                        },
+                },
+                {
+                    $addFields: {
+                        voters: { $size: "$voters" },
                     },
-
-                    {
-                        $addFields: {
-                            reads: { $size: "$reads" },
-                            votes: { $size: "$votes" },
-                            comments: { $size: "$comments" },
-                            canVote: {
-                                $switch: {
-                                    branches: [
-                                        { case: { $ne: ["$voters", 0] }, then: false },
-                                        { case: { $eq: ["$voters", 0] }, then: true },
-                                    ],
-                                },
+                },
+                {
+                    $addFields: {
+                        reads: { $size: "$reads" },
+                        votes: { $size: "$votes" },
+                        comments: { $size: "$comments" },
+                        canVote: {
+                            $switch: {
+                                branches: [
+                                    { case: { $ne: ["$voters", 0] }, then: false },
+                                    { case: { $eq: ["$voters", 0] }, then: true },
+                                ],
                             },
                         },
                     },
-                    { $unset: "voters" },
-                ] :
-                []),
+                },
+                { $unset: "voters" },
+            ] : []),
         ]);
-        console.log('chap:', chap); // Log để kiểm tra giá trị của chap
-        return res.status(200).json(chap[0]);
+        console.log('Chapter aggregate result:', chap); // Log để kiểm tra giá trị của chap
+
+        if (chap.length > 0) {
+            return res.status(200).json(chap[0]);
+        } else {
+            console.warn('No chapter found in aggregation'); // Log cảnh báo nếu không tìm thấy chương nào
+            return res.status(404).json({ message: 'Chapter not found' });
+        }
     } catch (err) {
-        console.error('Error:', err); // Log để kiểm tra lỗi
-        return res.status(500).json(err);
+        console.error('Error in getChapter:', err); // Log để kiểm tra lỗi
+        return res.status(500).json({ error: 'Internal server error' });
     }
 };
-
 
 
 
