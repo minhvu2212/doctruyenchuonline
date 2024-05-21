@@ -1,4 +1,4 @@
 module.exports = {
   jwtSecret: 'project2',
-    mongodbURI: 'mongodb://127.0.0.1:27017/thegioitruyenchu',
+    mongodbURI: 'mongodb+srv://hotelbooking:nQJ7ZN4Jqp8FjEF3@hotelbooking.iybvemx.mongodb.net/thegioitruyenchu',
   };
