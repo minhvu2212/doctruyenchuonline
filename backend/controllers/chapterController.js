@@ -17,28 +17,14 @@ const createChapter = async(req, res) => {
     }
 };
 
-const getStoryChapters = async (req, res) => {
+const getStoryChapters = async(req, res) => {
     try {
-        // Lấy thông tin của câu chuyện và các chương
-        const story = await Story.findById(req.story._id).select('title');
         const chapters = await chapterModel.find({ story: req.story._id }).sort({ order: 1 }); // Sắp xếp theo trường order
-        
-        // Kiểm tra xem câu chuyện có tồn tại không
-        if (!story) {
-            return res.status(404).json({ message: 'Story not found' });
-        }
-
-        // Trả về thông tin câu chuyện và các chương
-        return res.status(200).json({
-            storyTitle: story.title,
-            chapters: chapters
-        });
+        return res.status(200).json(chapters);
     } catch (err) {
-        console.error('Error in getStoryChapters:', err); // Log để kiểm tra lỗi
         return res.status(500).json(err);
     }
 };
-
 
 
 const getChapter = async (req, res) => {

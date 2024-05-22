@@ -264,7 +264,7 @@ const AdminPage = () => {
                         <Title level={3} className="mb-4">Chi tiết Chương</Title>
                         <div>
                             <p><strong>Tên chương:</strong> <span dangerouslySetInnerHTML={{ __html: censorSensitiveWords(selectedChapter.title).censoredText }}></span></p>
-                          
+
                             <p><strong>Nội dung:</strong> <span dangerouslySetInnerHTML={{ __html: censorSensitiveWords(selectedChapter.content).censoredText }}></span></p>
                             <Text type="danger">Từ nhạy cảm: {censorSensitiveWords(selectedChapter.content).count}</Text>
                         </div>
